@@ -428,6 +428,35 @@ pre {
   background: #0f172a; border-radius: 10px;
   padding: 14px 16px; margin: 10px 0;
   page-break-inside: avoid;
+  position: relative;
+}
+pre .copy-btn {
+  position: absolute;
+  top: 8px; right: 8px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 6px;
+  padding: 4px 10px;
+  color: rgba(255,255,255,0.5);
+  font-family: inherit;
+  font-size: 7.5pt;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; align-items: center; gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s;
+}
+pre:hover .copy-btn { opacity: 1; }
+pre .copy-btn:hover {
+  background: rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.85);
+}
+pre .copy-btn.copied {
+  background: rgba(5,150,105,0.3);
+  border-color: rgba(5,150,105,0.5);
+  color: #6ee7b7;
+  opacity: 1;
 }
 pre code {
   background: none; border: none; padding: 0;
@@ -526,7 +555,8 @@ pre code {
    Objectif : aucun bloc coupé, sauts de page propres,
    rendu identique Mac & Windows.
 ══════════════════════════════════════════════════════════ */
-@page { size: A4; margin: 18mm; }
+@page { size: A4; margin: 20mm; }
+@page cover-page { margin: 0; }
 
 @media print {
 
@@ -546,15 +576,16 @@ pre code {
   .selector-screen { display: none !important; }
   .nav-bar         { display: none !important; }
   .hidden          { display: none !important; }
+  .copy-btn        { display: none !important; }
 
   /* ── 3. Éléments sticky / fixed → static ────────────── */
   .nav-bar {
     position: static !important;
   }
 
-  /* ── 4. Pages : flux naturel (plus de hauteur fixe) ─── */
-  /*    @page margin gère les marges → on retire les       */
-  /*    paddings internes qui feraient double-emploi.       */
+  /* ── 4. Pages ────────────────────────────────────────── */
+  /*    @page margin = 20mm → marges blanches sur TOUTES    */
+  /*    les pages y compris overflow. Pas de padding ici.   */
   .page {
     width: auto;
     min-height: auto;
@@ -570,13 +601,14 @@ pre code {
     padding: 0;
   }
 
-  /* ── 5. Couverture ─────────────────────────────────── */
+  /* ── 5. Couverture — PLEINE PAGE via named page ──────── */
   .cover {
+    page: cover-page;
     width: auto;
-    min-height: 258mm;        /* ≈ A4 − 2×18 mm → remplit la page */
+    min-height: 297mm;
     box-shadow: none;
     margin: 0;
-    padding: 12mm 8mm;        /* réduit car @page ajoute déjà 18 mm */
+    padding: 28mm 25mm;
   }
   .cover::before,
   .cover::after {
@@ -584,8 +616,6 @@ pre code {
   }
 
   /* ── 6. En-tête de chapitre ─────────────────────────── */
-  /*    Plus de marges négatives (page-content n'a plus     */
-  /*    de padding) → bandeau arrondi à la place.          */
   .ch-header {
     margin: 0 0 20px 0;
     border-radius: 10px;
@@ -1683,16 +1713,36 @@ echo <span class="cs">"Bonjour le monde !"</span>;
 function selectOS(os) {
   document.getElementById('page-selector').style.display = 'none';
   document.getElementById('tuto-' + os).classList.remove('hidden');
-  window.scrollTo(0, 0);
 }
-function goBack() {
-  ['mac', 'win'].forEach(function(id) {
-    document.getElementById('tuto-' + id).classList.add('hidden');
-  });
-  document.getElementById('page-selector').style.display = 'flex';
-  window.scrollTo(0, 0);
-}
-</script>
 
+function goBack() {
+  document.querySelectorAll('.tuto').forEach(function(el) {
+    el.classList.add('hidden');
+  });
+  document.getElementById('page-selector').style.display = '';
+}
+
+/* ── Copy buttons on all <pre> blocks ── */
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('pre').forEach(function(pre) {
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.innerHTML = '📋 Copier';
+    btn.addEventListener('click', function() {
+      var code = pre.querySelector('code');
+      var text = (code || pre).textContent;
+      navigator.clipboard.writeText(text).then(function() {
+        btn.innerHTML = '✓ Copié !';
+        btn.classList.add('copied');
+        setTimeout(function() {
+          btn.innerHTML = '📋 Copier';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    });
+    pre.appendChild(btn);
+  });
+});
+</script>
 </body>
 </html>
