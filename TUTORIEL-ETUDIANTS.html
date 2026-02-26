@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tutoriel — Environnement PHP Docker</title>
+<style>
+/* ══════════════════════════════════════════════════════════
+   VARIABLES & RESET
+══════════════════════════════════════════════════════════ */
+:root {
+  --primary:  #4f46e5;
+  --cyan:     #0891b2;
+  --green:    #059669;
+  --orange:   #d97706;
+  --red:      #dc2626;
+  --dark:     #1e1b4b;
+  --text:     #1e293b;
+  --muted:    #64748b;
+  --light:    #f8fafc;
+  --border:   #e2e8f0;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 11pt;
+  line-height: 1.65;
+  color: var(--text);
+  background: #f1f5f9;
+}
+.hidden { display: none !important; }
+
+/* ══════════════════════════════════════════════════════════
+   ÉCRAN DE SÉLECTION OS
+══════════════════════════════════════════════════════════ */
+.selector-screen {
+  min-height: 100vh;
+  background: linear-gradient(160deg, #1e1b4b 0%, #0c4a6e 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.selector-screen::before {
+  content: '';
+  position: absolute;
+  top: -30%; right: -20%;
+  width: 80%; height: 80%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%);
+  pointer-events: none;
+}
+.selector-screen::after {
+  content: '';
+  position: absolute;
+  bottom: -30%; left: -20%;
+  width: 70%; height: 70%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(6,182,212,0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+.sel-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 30px;
+  padding: 6px 22px;
+  font-size: 9pt;
+  color: rgba(255,255,255,0.8);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 1.75rem;
+  position: relative; z-index: 1;
+}
+.sel-logo { font-size: 68pt; margin-bottom: 1rem; position: relative; z-index: 1; line-height: 1; }
+.sel-title {
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 0.75rem;
+  line-height: 1.1;
+  position: relative; z-index: 1;
+}
+.sel-subtitle {
+  font-size: 1.05rem;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 3rem;
+  max-width: 480px;
+  line-height: 1.6;
+  position: relative; z-index: 1;
+}
+.os-cards {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  position: relative; z-index: 1;
+}
+.os-btn {
+  width: 270px;
+  padding: 2.75rem 2rem;
+  background: rgba(255,255,255,0.07);
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+  text-align: center;
+  font-family: inherit;
+  position: relative;
+  overflow: hidden;
+}
+.os-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.mac-btn::before  { background: linear-gradient(135deg, rgba(129,140,248,0.35), rgba(6,182,212,0.25)); }
+.win-btn::before  { background: linear-gradient(135deg, rgba(6,182,212,0.35), rgba(14,165,233,0.25)); }
+.os-btn:hover {
+  transform: translateY(-8px);
+  border-color: rgba(255,255,255,0.45);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.45);
+}
+.os-btn:hover::before { opacity: 1; }
+.os-icon  { font-size: 3.8rem; margin-bottom: 1.1rem; position: relative; line-height: 1; }
+.os-name  { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; position: relative; }
+.os-desc  {
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+.os-cta {
+  display: inline-block;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: 20px;
+  padding: 7px 20px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  position: relative;
+  transition: background 0.2s;
+}
+.os-btn:hover .os-cta { background: rgba(255,255,255,0.28); }
+.sel-footer {
+  margin-top: 2.5rem;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.35);
+  position: relative; z-index: 1;
+}
+
+/* ══════════════════════════════════════════════════════════
+   BARRE DE NAVIGATION (visible en mode écran)
+══════════════════════════════════════════════════════════ */
+.nav-bar {
+  background: var(--dark);
+  color: white;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 3px solid var(--primary);
+}
+.nav-bar.win { border-bottom-color: var(--cyan); }
+.nav-back {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  padding: 6px 14px;
+  color: white;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 9pt;
+  font-weight: 600;
+  transition: background 0.2s;
+  display: flex; align-items: center; gap: 5px;
+}
+.nav-back:hover { background: rgba(255,255,255,0.22); }
+.nav-label { font-size: 9.5pt; color: rgba(255,255,255,0.55); }
+.nav-badge {
+  background: var(--primary);
+  color: white;
+  padding: 3px 12px;
+  border-radius: 12px;
+  font-size: 8.5pt;
+  font-weight: 700;
+}
+.nav-badge.win { background: var(--cyan); }
+.nav-print {
+  margin-left: auto;
+  background: linear-gradient(135deg, var(--primary), var(--cyan));
+  border: none;
+  border-radius: 8px;
+  padding: 7px 18px;
+  color: white;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 9pt;
+  font-weight: 700;
+  display: flex; align-items: center; gap: 6px;
+  transition: transform 0.2s;
+}
+.nav-print:hover { transform: scale(1.05); }
+
+/* ══════════════════════════════════════════════════════════
+   MISE EN PAGE IMPRESSION (A4)
+══════════════════════════════════════════════════════════ */
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto 1rem;
+  background: white;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.1);
+}
+.page-content { padding: 18mm 20mm 20mm 20mm; }
+.page-break { page-break-after: always; break-after: page; }
+
+/* ══════════════════════════════════════════════════════════
+   COUVERTURE
+══════════════════════════════════════════════════════════ */
+.cover {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto 1rem;              /* ← même centrage que .page */
+  box-shadow: 0 2px 16px rgba(0,0,0,0.1); /* ← même ombre que .page */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 28mm 25mm;
+  position: relative;
+  overflow: hidden;
+}
+.cover-mac { background: linear-gradient(160deg, #1e1b4b 0%, #312e81 45%, #1e3a5f 100%); }
+.cover-win { background: linear-gradient(160deg, #0c1a2e 0%, #0f2a4a 45%, #083344 100%); }
+.cover::before {
+  content: '';
+  position: absolute; top: -20%; right: -20%;
+  width: 80%; height: 80%; border-radius: 50%;
+  background: radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%);
+}
+.cover::after {
+  content: '';
+  position: absolute; bottom: -20%; left: -20%;
+  width: 70%; height: 70%; border-radius: 50%;
+  background: radial-gradient(circle, rgba(6,182,212,0.18) 0%, transparent 70%);
+}
+.cover-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 30px;
+  padding: 6px 22px;
+  font-size: 9pt;
+  color: rgba(255,255,255,0.8);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+  position: relative; z-index: 1;
+}
+.cover-logo { font-size: 68pt; margin-bottom: 18px; position: relative; z-index: 1; line-height: 1; }
+.cover h1 {
+  font-size: 30pt;
+  font-weight: 800;
+  color: white;
+  line-height: 1.15;
+  margin-bottom: 12px;
+  position: relative; z-index: 1;
+}
+.cover h1 span {
+  background: linear-gradient(135deg, #a5b4fc, #67e8f9);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.cover-subtitle {
+  font-size: 12pt;
+  color: rgba(255,255,255,0.65);
+  margin-bottom: 45px;
+  position: relative; z-index: 1;
+  max-width: 140mm; line-height: 1.55;
+}
+.cover-chips {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 50px;
+  position: relative; z-index: 1;
+}
+.cover-chip {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  padding: 7px 13px;
+  font-size: 8.5pt;
+  color: rgba(255,255,255,0.9);
+}
+.cover-urls {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  padding: 18px 28px;
+  position: relative; z-index: 1;
+  width: 100%; max-width: 148mm;
+}
+.cover-urls table { width: 100%; border-collapse: collapse; }
+.cover-urls td { padding: 5px 8px; font-size: 9.5pt; }
+.cover-urls td:first-child { color: rgba(255,255,255,0.6); width: 45%; }
+.cover-urls td:last-child { color: #a5f3fc; font-family: 'Courier New', monospace; font-weight: 600; }
+.cover-footer {
+  position: absolute; bottom: 18mm; left: 0; right: 0;
+  text-align: center;
+  color: rgba(255,255,255,0.38); font-size: 8.5pt; z-index: 1;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SOMMAIRE
+══════════════════════════════════════════════════════════ */
+.toc-page { padding: 18mm 20mm; }
+.toc-title {
+  font-size: 22pt; font-weight: 800; color: var(--dark);
+  margin-bottom: 28px; padding-bottom: 12px;
+  border-bottom: 3px solid var(--primary);
+}
+.toc-title.win { border-bottom-color: var(--cyan); }
+.toc-list { list-style: none; }
+.toc-row {
+  display: flex; align-items: center;
+  padding: 9px 0; border-bottom: 1px dotted var(--border); gap: 10px;
+}
+.toc-num {
+  width: 28px; height: 28px;
+  background: var(--primary); color: white;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 9pt; font-weight: 700; flex-shrink: 0;
+}
+.toc-num.win { background: var(--cyan); }
+.toc-text { flex: 1; font-size: 11pt; color: var(--text); font-weight: 500; }
+.toc-pg   { color: var(--muted); font-size: 10pt; font-weight: 600; }
+.toc-sub  { list-style: none; padding-left: 38px; }
+.toc-sub li {
+  display: flex; align-items: center;
+  padding: 4px 0; border-bottom: 1px dotted #f1f5f9; gap: 8px;
+}
+.toc-sub li::before { content: '–'; color: var(--muted); font-size: 9pt; }
+.toc-sub .toc-text { font-size: 9.5pt; color: var(--muted); font-weight: 400; }
+
+/* ══════════════════════════════════════════════════════════
+   EN-TÊTES DE CHAPITRE
+══════════════════════════════════════════════════════════ */
+.ch-header {
+  background: linear-gradient(135deg, #1e1b4b, #312e81);
+  color: white;
+  padding: 28px 26px;
+  margin: -18mm -20mm 24px -20mm;
+  display: flex; align-items: center; gap: 18px;
+}
+.ch-header.win { background: linear-gradient(135deg, #0c2a4a, #0e4f6e); }
+.ch-num {
+  width: 54px; height: 54px; border-radius: 14px;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17pt; font-weight: 900; flex-shrink: 0;
+}
+.ch-label { font-size: 8pt; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,255,255,0.52); margin-bottom: 4px; }
+.ch-title { font-size: 17pt; font-weight: 800; line-height: 1.15; color: white; }
+.ch-sub   { font-size: 9pt; color: rgba(255,255,255,0.58); margin-top: 4px; }
+
+/* ══════════════════════════════════════════════════════════
+   TYPOGRAPHIE
+══════════════════════════════════════════════════════════ */
+h2 {
+  font-size: 13.5pt; font-weight: 700; color: var(--dark);
+  margin: 20px 0 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+h2::after {
+  content: ''; flex: 1; height: 2px;
+  background: linear-gradient(90deg, var(--border), transparent);
+  margin-left: 8px;
+}
+h3 { font-size: 11pt; font-weight: 700; color: var(--primary); margin: 14px 0 7px; }
+h3.win { color: var(--cyan); }
+p  { margin-bottom: 10px; }
+strong { color: var(--dark); }
+
+/* ══════════════════════════════════════════════════════════
+   COMPOSANTS
+══════════════════════════════════════════════════════════ */
+/* Étapes */
+.steps { list-style: none; display: flex; flex-direction: column; gap: 9px; margin: 12px 0; }
+.step {
+  display: flex; gap: 13px; align-items: flex-start;
+  background: var(--light); border: 1px solid var(--border);
+  border-radius: 10px; padding: 11px 13px;
+}
+.snum {
+  width: 26px; height: 26px;
+  background: linear-gradient(135deg, var(--primary), var(--cyan));
+  color: white; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9pt; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+}
+.snum.red { background: linear-gradient(135deg, #dc2626, #f97316); }
+.stitle { font-weight: 700; color: var(--dark); font-size: 10pt; margin-bottom: 3px; }
+.sdesc  { font-size: 9.5pt; color: var(--muted); line-height: 1.5; }
+
+/* Code */
+code {
+  background: #f1f5f9; border: 1px solid var(--border);
+  border-radius: 4px; padding: 1px 6px;
+  font-family: 'Courier New', monospace; font-size: 9pt;
+  color: var(--cyan); font-weight: 600;
+}
+pre {
+  background: #0f172a; border-radius: 10px;
+  padding: 14px 16px; margin: 10px 0;
+  page-break-inside: avoid;
+}
+pre code {
+  background: none; border: none; padding: 0;
+  color: #a5f3fc; font-size: 8.5pt; line-height: 1.75; font-weight: 400;
+}
+.cc { color: #475569; }
+.cs { color: #86efac; }
+.ck { color: #f9a8d4; }
+.cv { color: #fde68a; }
+
+/* Alertes */
+.alert {
+  border-radius: 10px; padding: 11px 15px; margin: 12px 0;
+  display: flex; gap: 11px; align-items: flex-start;
+  page-break-inside: avoid;
+}
+.aico { font-size: 15pt; flex-shrink: 0; line-height: 1.35; }
+.abody { flex: 1; }
+.atitle { font-weight: 700; font-size: 10pt; margin-bottom: 3px; }
+.atext  { font-size: 9.5pt; line-height: 1.5; }
+.a-info    { background: #eff6ff; border: 1px solid #bfdbfe; }
+.a-info    .atitle { color: #1d4ed8; } .a-info    .atext  { color: #1e40af; }
+.a-ok      { background: #f0fdf4; border: 1px solid #bbf7d0; }
+.a-ok      .atitle { color: #15803d; } .a-ok      .atext  { color: #166534; }
+.a-warn    { background: #fffbeb; border: 1px solid #fde68a; }
+.a-warn    .atitle { color: #b45309; } .a-warn    .atext  { color: #92400e; }
+.a-tip     { background: #faf5ff; border: 1px solid #e9d5ff; }
+.a-tip     .atitle { color: #7c3aed; } .a-tip     .atext  { color: #6d28d9; }
+.a-red     { background: #fef2f2; border: 1px solid #fecaca; }
+.a-red     .atitle { color: #b91c1c; } .a-red     .atext  { color: #991b1b; }
+
+/* Tableaux */
+.tbl {
+  width: 100%; border-collapse: collapse; margin: 11px 0;
+  font-size: 9.5pt; page-break-inside: avoid;
+}
+.tbl thead tr { background: var(--dark); color: white; }
+.tbl thead td { padding: 8px 11px; font-weight: 700; font-size: 9pt; text-transform: uppercase; letter-spacing: 0.04em; }
+.tbl thead td:first-child { border-radius: 8px 0 0 0; }
+.tbl thead td:last-child  { border-radius: 0 8px 0 0; }
+.tbl tbody tr { border-bottom: 1px solid var(--border); }
+.tbl tbody tr:nth-child(even) { background: var(--light); }
+.tbl tbody td { padding: 8px 11px; vertical-align: middle; }
+.tbl .svc  { font-weight: 600; color: var(--dark); }
+.tbl .url  { font-family: 'Courier New', monospace; font-weight: 700; color: var(--cyan); font-size: 9pt; }
+.tbl .desc { color: var(--muted); }
+
+/* Boîte d'identifiants */
+.creds-box { background: var(--light); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.creds-box table { width: 100%; border-collapse: collapse; }
+.creds-box tr { border-bottom: 1px solid var(--border); }
+.creds-box tr:last-child { border-bottom: none; }
+.creds-box td { padding: 8px 12px; font-size: 10pt; }
+.creds-box td:first-child { color: var(--muted); width: 46%; font-size: 9.5pt; }
+.creds-box td:last-child  { font-family: 'Courier New', monospace; font-weight: 700; color: var(--primary); }
+
+/* Cards */
+.card {
+  background: white; border: 1px solid var(--border);
+  border-radius: 12px; padding: 15px 17px; margin: 9px 0;
+  page-break-inside: avoid;
+}
+.ctitle { font-weight: 700; color: var(--dark); font-size: 10.5pt; margin-bottom: 7px; }
+.c-blue   { border-left: 4px solid var(--primary); }
+.c-cyan   { border-left: 4px solid var(--cyan); }
+.c-green  { border-left: 4px solid var(--green); }
+.c-red    { border-left: 4px solid var(--red); }
+.c-orange { border-left: 4px solid var(--orange); }
+
+/* Grille 2 colonnes */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+
+/* Barre navigateur simulée */
+.bbar {
+  background: #e5e7eb; border-radius: 8px 8px 0 0;
+  padding: 7px 11px;
+  display: flex; align-items: center; gap: 5px;
+  font-size: 8pt; color: #6b7280;
+}
+.bdots { display: flex; gap: 4px; }
+.bd { width: 8px; height: 8px; border-radius: 50%; }
+.bd-r { background: #ef4444; } .bd-y { background: #eab308; } .bd-g { background: #22c55e; }
+.burl {
+  flex: 1; background: white; border-radius: 4px;
+  padding: 2px 9px; font-family: 'Courier New', monospace;
+  font-size: 8.5pt; color: var(--cyan); font-weight: 600; margin: 0 7px;
+}
+.bcontent {
+  background: white; border: 1px solid #e5e7eb; border-top: none;
+  border-radius: 0 0 8px 8px; padding: 13px 15px; font-size: 9pt;
+}
+.divider { height: 1px; background: var(--border); margin: 18px 0; }
+
+/* ══════════════════════════════════════════════════════════
+   IMPRESSION — Export PDF (Chrome / Edge → Enregistrer en PDF)
+   Objectif : aucun bloc coupé, sauts de page propres,
+   rendu identique Mac & Windows.
+══════════════════════════════════════════════════════════ */
+@page { size: A4; margin: 18mm; }
+
+@media print {
+
+  /* ── 1. Reset global ────────────────────────────────── */
+  html, body {
+    background: #fff !important;
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* ── 2. Masquer les éléments interactifs ─────────────── */
+  .selector-screen { display: none !important; }
+  .nav-bar         { display: none !important; }
+  .hidden          { display: none !important; }
+
+  /* ── 3. Éléments sticky / fixed → static ────────────── */
+  .nav-bar {
+    position: static !important;
+  }
+
+  /* ── 4. Pages : flux naturel (plus de hauteur fixe) ─── */
+  /*    @page margin gère les marges → on retire les       */
+  /*    paddings internes qui feraient double-emploi.       */
+  .page {
+    width: auto;
+    min-height: auto;
+    box-shadow: none;
+    margin: 0;
+    padding: 0;
+    background: none;
+  }
+  .page-content {
+    padding: 0;
+  }
+  .toc-page {
+    padding: 0;
+  }
+
+  /* ── 5. Couverture ─────────────────────────────────── */
+  .cover {
+    width: auto;
+    min-height: 258mm;        /* ≈ A4 − 2×18 mm → remplit la page */
+    box-shadow: none;
+    margin: 0;
+    padding: 12mm 8mm;        /* réduit car @page ajoute déjà 18 mm */
+  }
+  .cover::before,
+  .cover::after {
+    display: none;            /* cercles décoratifs inutiles en PDF */
+  }
+
+  /* ── 6. En-tête de chapitre ─────────────────────────── */
+  /*    Plus de marges négatives (page-content n'a plus     */
+  /*    de padding) → bandeau arrondi à la place.          */
+  .ch-header {
+    margin: 0 0 20px 0;
+    border-radius: 10px;
+  }
+
+  /* ── 7. Sauts de page entre chapitres ───────────────── */
+  .page-break {
+    break-after: page;
+    page-break-after: always;
+  }
+
+  /* ── 8. BLOCS PÉDAGOGIQUES — JAMAIS COUPÉS ─────────── */
+  .step,
+  .steps,
+  .alert,
+  .card,
+  .tbl,
+  .creds-box,
+  .g2,
+  .bbar,
+  .bcontent,
+  .toc-row,
+  .cover-urls,
+  .ch-header,
+  .divider,
+  pre,
+  blockquote,
+  table,
+  figure,
+  img {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* ── 9. Barre navigateur collée à son contenu ───────── */
+  .bbar {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  /* ── 10. En-tête de chapitre collé au contenu suivant ── */
+  .ch-header {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  /* ── 11. Titres : jamais orphelins en bas de page ───── */
+  h2, h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  /* ── 12. Contrôle orphelines / veuves ──────────────── */
+  p, li {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* ── 13. Flex / Grid → colonne unique en impression ── */
+  /*    Évite les coupures dans les mises en page 2 col.  */
+  .g2 {
+    display: block !important;
+  }
+  .g2 > * {
+    margin-bottom: 8px;
+  }
+
+  /* Grilles inline dans les simulations navigateur        */
+  .bcontent [style*="grid-template-columns"] {
+    display: block !important;
+  }
+  .bcontent [style*="grid-template-columns"] > * {
+    margin-bottom: 6px;
+  }
+
+}
+</style>
+</head>
+<body>
+
+<!-- ████████████████████████████████████████
+     ÉCRAN DE SÉLECTION
+████████████████████████████████████████ -->
+<div id="page-selector" class="selector-screen">
+
+  <div class="sel-badge">🐳 Environnement PHP Docker — Guide d'utilisation</div>
+  <div class="sel-logo">💻</div>
+  <h1 class="sel-title">Quel est votre ordinateur ?</h1>
+  <p class="sel-subtitle">
+    Choisissez votre système d'exploitation pour accéder<br>
+    au tutoriel d'installation et d'utilisation adapté.
+  </p>
+
+  <div class="os-cards">
+
+    <button class="os-btn mac-btn" onclick="selectOS('mac')">
+      <div class="os-icon">🍎</div>
+      <div class="os-name">MacBook</div>
+      <div class="os-desc">Mac Intel ou Apple Silicon<br>(M1 / M2 / M3 / M4)</div>
+      <div class="os-cta">Tutoriel Mac →</div>
+    </button>
+
+    <button class="os-btn win-btn" onclick="selectOS('win')">
+      <div class="os-icon">🪟</div>
+      <div class="os-name">Windows</div>
+      <div class="os-desc">Windows 10 ou Windows 11<br>avec WSL2 + Docker Desktop</div>
+      <div class="os-cta">Tutoriel Windows →</div>
+    </button>
+
+  </div>
+
+  <p class="sel-footer">
+    Apache + PHP 7.4 + MariaDB 10.6 + phpMyAdmin 5.2 + Portainer CE
+  </p>
+</div>
+
+
+<!-- ████████████████████████████████████████
+     TUTORIEL MAC
+████████████████████████████████████████ -->
+<div id="tuto-mac" class="tuto hidden">
+
+<!-- Barre de navigation Mac -->
+<div class="nav-bar">
+  <button class="nav-back" onclick="goBack()">← Choisir mon système</button>
+  <span class="nav-label">Tutoriel</span>
+  <span class="nav-badge">🍎 MacBook</span>
+  <button class="nav-print" onclick="window.print()">🖨️ Enregistrer en PDF</button>
+</div>
+
+<!-- ── COUVERTURE MAC ── -->
+<div class="cover cover-mac page-break">
+  <div class="cover-badge">Tutoriel Mac — Guide débutant</div>
+  <div class="cover-logo">🍎</div>
+  <h1>Environnement PHP<br><span>sur MacBook</span></h1>
+  <p class="cover-subtitle">Guide d'installation et d'utilisation pas à pas<br>Compatible Mac Intel &amp; Apple Silicon (M1/M2/M3/M4)</p>
+  <div class="cover-chips">
+    <span class="cover-chip">🌐 Apache 2.4</span>
+    <span class="cover-chip">⚙️ PHP 7.4</span>
+    <span class="cover-chip">🗃️ MariaDB 10.6</span>
+    <span class="cover-chip">🔧 phpMyAdmin</span>
+    <span class="cover-chip">🐳 Portainer</span>
+  </div>
+  <div class="cover-urls">
+    <table>
+      <tr><td>🌐 Site PHP</td><td>http://localhost:8080</td></tr>
+      <tr><td>🗄️ phpMyAdmin</td><td>http://localhost:8081</td></tr>
+      <tr><td>🐳 Portainer (GUI)</td><td>http://localhost:9000</td></tr>
+      <tr><td>🏠 Tableau de bord</td><td>http://localhost:8082</td></tr>
+    </table>
+  </div>
+  <div class="cover-footer">Tutoriel Mac — Environnement de cours PHP — Docker Desktop</div>
+</div>
+
+<!-- ── SOMMAIRE MAC ── -->
+<div class="page page-break">
+<div class="toc-page">
+  <div class="toc-title">Sommaire — Mac</div>
+  <ul class="toc-list">
+    <li>
+      <div class="toc-row"><div class="toc-num">1</div><div class="toc-text">Installer Docker Desktop sur Mac</div><div class="toc-pg">p. 3</div></div>
+      <ul class="toc-sub">
+        <li><div class="toc-text">Mac Intel ou Apple Silicon — comment savoir</div></li>
+        <li><div class="toc-text">Téléchargement et installation</div></li>
+        <li><div class="toc-text">Vérifier que Docker est prêt</div></li>
+      </ul>
+    </li>
+    <li>
+      <div class="toc-row"><div class="toc-num">2</div><div class="toc-text">Premier démarrage de l'environnement</div><div class="toc-pg">p. 4</div></div>
+      <ul class="toc-sub">
+        <li><div class="toc-text">Préparer les scripts (une seule fois)</div></li>
+        <li><div class="toc-text">Lancer l'environnement avec start.command</div></li>
+      </ul>
+    </li>
+    <li>
+      <div class="toc-row"><div class="toc-num">3</div><div class="toc-text">Accéder aux interfaces web</div><div class="toc-pg">p. 5</div></div>
+      <ul class="toc-sub">
+        <li><div class="toc-text">Tableau de bord (8082), Site PHP (8080), phpMyAdmin (8081)</div></li>
+        <li><div class="toc-text">Portainer — créer son compte (important !)</div></li>
+      </ul>
+    </li>
+    <li>
+      <div class="toc-row"><div class="toc-num">4</div><div class="toc-text">Travailler avec PHP</div><div class="toc-pg">p. 7</div></div>
+      <ul class="toc-sub">
+        <li><div class="toc-text">Le dossier htdocs — votre espace de travail</div></li>
+        <li><div class="toc-text">Créer et tester un fichier PHP</div></li>
+        <li><div class="toc-text">Se connecter à la base de données</div></li>
+      </ul>
+    </li>
+    <li>
+      <div class="toc-row"><div class="toc-num">5</div><div class="toc-text">Gérer la base de données avec phpMyAdmin</div><div class="toc-pg">p. 8</div></div>
+    </li>
+    <li>
+      <div class="toc-row"><div class="toc-num">6</div><div class="toc-text">Arrêter et redémarrer les services</div><div class="toc-pg">p. 9</div></div>
+    </li>
+    <li>
+      <div class="toc-row"><div class="toc-num">7</div><div class="toc-text">Dépannage Mac</div><div class="toc-pg">p. 10</div></div>
+      <ul class="toc-sub">
+        <li><div class="toc-text">Portainer timeout — solution</div></li>
+        <li><div class="toc-text">Problèmes fréquents</div></li>
+        <li><div class="toc-text">Récapitulatif des identifiants</div></li>
+      </ul>
+    </li>
+  </ul>
+  <div class="alert a-info" style="margin-top:32px">
+    <div class="aico">ℹ️</div>
+    <div class="abody">
+      <div class="atitle">À propos de ce tutoriel</div>
+      <div class="atext">Ce guide est conçu pour des débutants. Toutes les opérations s'effectuent via des interfaces graphiques. Aucune ligne de commande complexe n'est requise après la configuration initiale.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ── CH.1 MAC : INSTALLATION DOCKER DESKTOP ── -->
+<div class="page page-break">
+<div class="page-content">
+  <div class="ch-header">
+    <div class="ch-num">1</div>
+    <div><div class="ch-label">Chapitre 1</div><div class="ch-title">Installer Docker Desktop</div><div class="ch-sub">À faire une seule fois sur votre MacBook</div></div>
+  </div>
+
+  <h2>🍎 Quel type de Mac avez-vous ?</h2>
+  <p>Avant de télécharger, identifiez votre processeur. Les deux types de Mac nécessitent des versions différentes de Docker.</p>
+  <div class="alert a-info">
+    <div class="aico">🔍</div>
+    <div class="abody">
+      <div class="atitle">Comment savoir ?</div>
+      <div class="atext">Menu <strong>Pomme ()</strong> → <strong>"À propos de ce Mac"</strong><br>
+      • Vous voyez <strong>"Processeur Intel"</strong> → Mac Intel<br>
+      • Vous voyez <strong>"Puce Apple M1/M2/M3/M4"</strong> → Mac Apple Silicon</div>
+    </div>
+  </div>
+
+  <h2>⬇️ Téléchargement et installation</h2>
+  <div class="g2">
+    <div class="card c-blue">
+      <div class="ctitle">🖥️ Mac Intel</div>
+      <ol style="padding-left:16px;font-size:9.5pt;color:#475569;line-height:1.9">
+        <li>Allez sur <strong>docker.com</strong></li>
+        <li>Cliquez <strong>"Download for Mac"</strong></li>
+        <li>Choisissez <strong>"Intel Chip"</strong></li>
+        <li>Ouvrez le fichier <code>.dmg</code></li>
+        <li>Glissez Docker → Applications</li>
+        <li>Ouvrez Docker Desktop</li>
+      </ol>
+    </div>
+    <div class="card c-cyan">
+      <div class="ctitle">⚡ Mac Apple Silicon (M1/M2/M3/M4)</div>
+      <ol style="padding-left:16px;font-size:9.5pt;color:#475569;line-height:1.9">
+        <li>Allez sur <strong>docker.com</strong></li>
+        <li>Cliquez <strong>"Download for Mac"</strong></li>
+        <li>Choisissez <strong>"Apple Chip"</strong></li>
+        <li>Ouvrez le fichier <code>.dmg</code></li>
+        <li>Glissez Docker → Applications</li>
+        <li>Ouvrez Docker Desktop</li>
+      </ol>
+    </div>
+  </div>
+
+  <h2>✅ Vérifier que Docker est prêt</h2>
+  <p>Docker Desktop place une <strong>icône baleine 🐳</strong> dans la barre de menu (en haut à droite de l'écran).</p>
+  <div class="card">
+    <div class="ctitle">Signification des couleurs</div>
+    <table style="width:100%;font-size:9.5pt;border-collapse:collapse">
+      <tr style="border-bottom:1px solid #f1f5f9"><td style="padding:6px 8px;width:30px">🟢</td><td style="padding:6px 8px;font-weight:600;color:#059669">Vert = Prêt</td><td style="padding:6px 8px;color:#64748b">Docker est démarré — vous pouvez travailler</td></tr>
+      <tr style="border-bottom:1px solid #f1f5f9"><td style="padding:6px 8px">🟡</td><td style="padding:6px 8px;font-weight:600;color:#d97706">Jaune = Démarrage</td><td style="padding:6px 8px;color:#64748b">Attendez quelques secondes</td></tr>
+      <tr><td style="padding:6px 8px">🔴</td><td style="padding:6px 8px;font-weight:600;color:#dc2626">Rouge = Erreur</td><td style="padding:6px 8px;color:#64748b">Redémarrez Docker Desktop</td></tr>
+    </table>
+  </div>
+  <div class="alert a-warn">
+    <div class="aico">⚠️</div>
+    <div class="abody">
+      <div class="atitle">Docker doit être vert avant de continuer</div>
+      <div class="atext">Docker Desktop doit rester ouvert pendant toute votre session de travail. Si vous le fermez, tous les services s'arrêtent.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ── CH.2 MAC : PREMIER DÉMARRAGE ── -->
+<div class="page page-break">
+<div class="page-content">
+  <div class="ch-header">
+    <div class="ch-num">2</div>
+    <div><div class="ch-label">Chapitre 2</div><div class="ch-title">Premier démarrage</div><div class="ch-sub">Lancer l'environnement en double-cliquant</div></div>
+  </div>
+
+  <h2>🔑 Étape unique — Donner les permissions</h2>
+  <p>Les scripts <code>start.command</code> et <code>stop.command</code> ont besoin d'une permission d'exécution. <strong>Cette étape ne se fait qu'une seule fois.</strong></p>
+  <ul class="steps">
+    <li class="step">
+      <div class="snum">1</div>
+      <div><div class="stitle">Ouvrir Terminal</div><div class="sdesc">Launchpad → cherchez "Terminal" → cliquez dessus</div></div>
+    </li>
+    <li class="step">
+      <div class="snum">2</div>
+      <div><div class="stitle">Aller dans le dossier du projet</div><div class="sdesc">Tapez et appuyez sur <strong>Entrée</strong> :</div></div>
+    </li>
+  </ul>
+  <pre><code>cd ~/Desktop/BaseDedonnée</code></pre>
+  <ul class="steps">
+    <li class="step">
+      <div class="snum">3</div>
+      <div><div class="stitle">Donner les permissions</div><div class="sdesc">Tapez et appuyez sur <strong>Entrée</strong> :</div></div>
+    </li>
+  </ul>
+  <pre><code>chmod +x start.command stop.command</code></pre>
+  <div class="alert a-ok">
+    <div class="aico">✅</div>
+    <div class="abody"><div class="atitle">Terminé !</div><div class="atext">Vous n'aurez plus jamais besoin du Terminal. À partir de maintenant, tout se fait en double-cliquant.</div></div>
+  </div>
+
+  <h2>🚀 Lancer l'environnement</h2>
+  <ul class="steps">
+    <li class="step"><div class="snum">1</div><div><div class="stitle">Vérifiez que Docker Desktop est ouvert et vert</div><div class="sdesc">Regardez l'icône baleine en haut à droite de l'écran</div></div></li>
+    <li class="step"><div class="snum">2</div><div><div class="stitle">Double-cliquez sur <code>start.command</code></div><div class="sdesc">Ce fichier est dans le dossier du projet (sur votre Bureau)</div></div></li>
+    <li class="step"><div class="snum">3</div><div><div class="stitle">Une fenêtre Terminal s'ouvre automatiquement</div><div class="sdesc">Ne la fermez pas ! Les services démarrent en arrière-plan</div></div></li>
+    <li class="step"><div class="snum">4</div><div><div class="stitle">Attendez le message vert de confirmation</div><div class="sdesc"><code>✅  Environnement démarré avec succès !</code></div></div></li>
+    <li class="step"><div class="snum snum red">!</div><div><div class="stitle" style="color:#dc2626">Allez immédiatement sur Portainer !</div><div class="sdesc">Ouvrez http://localhost:9000 dans les 5 premières minutes pour créer votre compte. Voir Ch.3 pour les détails.</div></div></li>
+  </ul>
+  <div class="alert a-warn">
+    <div class="aico">⏱️</div>
+    <div class="abody"><div class="atitle">Première fois : patientez 5 à 10 minutes</div><div class="atext">Docker télécharge les images (PHP, MariaDB…). C'est long <strong>uniquement la première fois</strong>. Les fois suivantes : moins de 10 secondes.</div></div>
+  </div>
+</div>
+</div>
+
+<!-- ── CH.3 MAC : INTERFACES WEB (1/2) ── -->
+<div class="page page-break">
+<div class="page-content">
+  <div class="ch-header">
+    <div class="ch-num">3</div>
+    <div><div class="ch-label">Chapitre 3</div><div class="ch-title">Accéder aux interfaces web</div><div class="ch-sub">Tout se passe dans votre navigateur</div></div>
+  </div>
+
+  <h2>🗺️ Vue d'ensemble</h2>
+  <table class="tbl">
+    <thead><tr><td>Service</td><td>Adresse</td><td>Description</td></tr></thead>
+    <tbody>
+      <tr><td class="svc">🏠 Tableau de bord</td><td class="url">localhost:8082</td><td class="desc">Page d'accueil avec tous les liens</td></tr>
+      <tr><td class="svc">🌐 Site PHP</td><td class="url">localhost:8080</td><td class="desc">Vos fichiers PHP (htdocs/)</td></tr>
+      <tr><td class="svc">🗄️ phpMyAdmin</td><td class="url">localhost:8081</td><td class="desc">Gestion visuelle de la BDD</td></tr>
+      <tr><td class="svc">🐳 Portainer</td><td class="url">localhost:9000</td><td class="desc">Gestion des conteneurs Docker</td></tr>
+    </tbody>
+  </table>
+
+  <h2>🏠 Tableau de bord — localhost:8082</h2>
+  <p>Votre <strong>point de départ</strong> quotidien. Il centralise tous les liens et vos identifiants.</p>
+  <div class="bbar"><div class="bdots"><div class="bd bd-r"></div><div class="bd bd-y"></div><div class="bd bd-g"></div></div><div class="burl">http://localhost:8082</div></div>
+  <div class="bcontent">
+    <p style="margin:0 0 8px;font-weight:700;color:#1e293b">Tableau de bord — Cours PHP Docker</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:8.5pt">
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:7px;border-left:3px solid #4f46e5">🌐 <strong>Site PHP</strong><br><span style="color:#64748b">localhost:8080 →</span></div>
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:7px;border-left:3px solid #d97706">🗄️ <strong>phpMyAdmin</strong><br><span style="color:#64748b">localhost:8081 →</span></div>
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:7px;border-left:3px solid #0891b2">🐳 <strong>Portainer</strong><br><span style="color:#64748b">localhost:9000 →</span></div>
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:7px;border-left:3px solid #ec4899">🏠 <strong>Dashboard</strong><br><span style="color:#64748b">localhost:8082 →</span></div>
+    </div>
+  </div>
+
+  <h2>🌐 Site PHP — localhost:8080</h2>
+  <p>Affiche le contenu de votre dossier <code>htdocs/</code>. La page de test confirme que PHP et la base de données fonctionnent.</p>
+  <div class="bbar"><div class="bdots"><div class="bd bd-r"></div><div class="bd bd-y"></div><div class="bd bd-g"></div></div><div class="burl">http://localhost:8080</div></div>
+  <div class="bcontent">
+    <p style="margin:0 0 5px;font-size:16pt;font-weight:800;color:#4f46e5">Hello PHP ! 👋</p>
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:6px 10px;font-size:9pt;color:#15803d;margin:7px 0">✅ Connexion à MySQL réussie ! (MariaDB 10.6.x)</div>
+    <div style="font-size:9pt;color:#334155"><strong>PHP 7.4.x</strong> — Linux 64 bits</div>
+  </div>
+</div>
+</div>
+
+<!-- ── CH.3 MAC : INTERFACES WEB (2/2 — phpMyAdmin + Portainer) ── -->
+<div class="page page-break">
+<div class="page-content">
+
+  <h2>🗄️ phpMyAdmin — localhost:8081</h2>
+  <p>Interface graphique pour gérer votre base de données. La connexion est pré-configurée (automatique).</p>
+  <div class="creds-box" style="margin-bottom:10px">
+    <table><tr><td>🌐 Adresse</td><td>http://localhost:8081</td></tr><tr><td>👤 Utilisateur</td><td>root</td></tr><tr><td>🔑 Mot de passe</td><td>root</td></tr><tr><td>🗃️ Base de données</td><td>app</td></tr></table>
+  </div>
+  <div class="alert a-warn">
+    <div class="aico">⏱️</div>
+    <div class="abody"><div class="atitle">phpMyAdmin ne répond pas ?</div><div class="atext">La BDD met 10 à 20 secondes à démarrer. Attendez et actualisez avec <strong>Cmd+R</strong>.</div></div>
+  </div>
+
+  <h2>🐳 Portainer — localhost:9000</h2>
+  <p>Interface graphique pour gérer vos conteneurs Docker (démarrer, arrêter, redémarrer, voir les logs) — sans ligne de commande.</p>
+
+  <div class="alert a-red">
+    <div class="aico">⚠️</div>
+    <div class="abody">
+      <div class="atitle">Agissez dans les 5 premières minutes !</div>
+      <div class="atext">
+        Portainer expire son initialisation pour des raisons de sécurité.
+        Après le démarrage, allez <strong>immédiatement</strong> sur http://localhost:9000 et créez votre compte.
+        Si vous voyez la page <em>"timeout"</em> → voir le chapitre Dépannage (p. 10).
+      </div>
+    </div>
+  </div>
+
+  <h3>Créer son compte (premier accès)</h3>
+  <ul class="steps">
+    <li class="step"><div class="snum">1</div><div><div class="stitle">Ouvrez http://localhost:9000</div><div class="sdesc">Portainer vous demande de créer un compte administrateur</div></div></li>
+    <li class="step"><div class="snum">2</div><div><div class="stitle">Entrez un nom d'utilisateur et un mot de passe</div><div class="sdesc">Exemple : <code>admin</code> — Mot de passe : 12 caractères minimum</div></div></li>
+    <li class="step"><div class="snum">3</div><div><div class="stitle">Cliquez "Create user"</div><div class="sdesc">Puis choisissez <strong>"Get Started" → "local"</strong></div></div></li>
+  </ul>
+
+  <h3>Ce que vous pouvez faire dans Portainer</h3>
+  <div class="bbar"><div class="bdots"><div class="bd bd-r"></div><div class="bd bd-y"></div><div class="bd bd-g"></div></div><div class="burl">http://localhost:9000 → Containers</div></div>
+  <div class="bcontent">
+    <table style="width:100%;font-size:8.5pt;border-collapse:collapse">
+      <tr style="background:#f8fafc;border-bottom:1px solid #e2e8f0"><td style="padding:5px 8px;font-weight:700">Conteneur</td><td style="padding:5px 8px;font-weight:700">État</td><td style="padding:5px 8px;font-weight:700">Actions disponibles</td></tr>
+      <tr style="border-bottom:1px solid #f1f5f9"><td style="padding:5px 8px">cours_web</td><td style="padding:5px 8px"><span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:10px;font-size:8pt">running</span></td><td style="padding:5px 8px;color:#4f46e5">▶ ■ ↺ 📋</td></tr>
+      <tr style="border-bottom:1px solid #f1f5f9"><td style="padding:5px 8px">cours_db</td><td style="padding:5px 8px"><span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:10px;font-size:8pt">running</span></td><td style="padding:5px 8px;color:#4f46e5">▶ ■ ↺ 📋</td></tr>
+      <tr><td style="padding:5px 8px">cours_phpmyadmin</td><td style="padding:5px 8px"><span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:10px;font-size:8pt">running</span></td><td style="padding:5px 8px;color:#4f46e5">▶ ■ ↺ 📋</td></tr>
+    </table>
+    <p style="font-size:8pt;color:#94a3b8;margin-top:6px">▶ Démarrer &nbsp; ■ Arrêter &nbsp; ↺ Redémarrer &nbsp; 📋 Voir les logs</p>
+  </div>
+</div>
+</div>
+
+<!-- ── CH.4 MAC : TRAVAILLER AVEC PHP ── -->
+<div class="page page-break">
+<div class="page-content">
+  <div class="ch-header">
+    <div class="ch-num">4</div>
+    <div><div class="ch-label">Chapitre 4</div><div class="ch-title">Travailler avec PHP</div><div class="ch-sub">Créer, éditer et tester vos scripts PHP</div></div>
+  </div>
+
+  <h2>📁 Le dossier htdocs — votre espace de travail</h2>
+  <p>Tous vos fichiers PHP doivent être dans le dossier <code>htdocs/</code> du projet. C'est l'équivalent du dossier <code>htdocs</code> de XAMPP.</p>
+  <div class="card c-blue">
+    <div class="ctitle">📂 Structure du projet</div>
+    <pre style="margin:4px 0"><code style="font-size:8.5pt;line-height:1.9">BaseDedonnée/
+├── 📁 <span class="cv">htdocs/</span>          ← <span class="cs">VOS FICHIERS PHP ICI</span>
+│   ├── index.php       ← page de test (déjà créée)
+│   └── bonjour.php     ← votre prochain fichier
+└── docker-compose.yml  ← ne pas toucher</code></pre>
+  </div>
+
+  <h2>✍️ Créer votre premier fichier PHP</h2>
+  <ul class="steps">
+    <li class="step"><div class="snum">1</div><div><div class="stitle">Ouvrez le dossier <code>htdocs/</code> dans le Finder</div><div class="sdesc">Double-clic sur le dossier depuis votre Bureau</div></div></li>
+    <li class="step"><div class="snum">2</div><div><div class="stitle">Créez un nouveau fichier <code>bonjour.php</code></div><div class="sdesc">Dans VS Code, TextEdit, ou tout éditeur de texte. L'extension <code>.php</code> est obligatoire.</div></div></li>
+    <li class="step"><div class="snum">3</div><div><div class="stitle">Écrivez votre code PHP</div><div class="sdesc">Exemple minimal ci-dessous</div></div></li>
+    <li class="step"><div class="snum">4</div><div><div class="stitle">Sauvegardez et ouvrez dans le navigateur</div><div class="sdesc"><code>http://localhost:8080/bonjour.php</code> — actualisez avec <strong>Cmd+R</strong></div></div></li>
+  </ul>
+
+  <pre><code><span class="ck">&lt;?php</span>
+echo <span class="cs">"Bonjour le monde !"</span>;
+<span class="ck">?&gt;</span></code></pre>
+
+  <div class="alert a-ok">
+    <div class="aico">🎉</div>
+    <div class="abody"><div class="atitle">Pas besoin de redémarrer !</div><div class="atext">Chaque modification de vos fichiers PHP est visible immédiatement après <strong>Cmd+R</strong> dans le navigateur.</div></div>
+  </div>
+
+  <h2>🔌 Connexion à la base de données (PDO)</h2>
+  <pre><code><span class="cc">// Connexion à la base de données</span>
+<span class="cv">$pdo</span> = new PDO(
+    <span class="cs">"mysql:host=db;dbname=app;charset=utf8mb4"</span>,
+    <span class="cs">"app"</span>,   <span class="cc">// utilisateur</span>
+    <span class="cs">"app"</span>    <span class="cc">// mot de passe</span>
+);
+
+<span class="cc">// Récupérer des données</span>
+<span class="cv">$stmt</span> = <span class="cv">$pdo</span>->query(<span class="cs">"SELECT * FROM ma_table"</span>);
+<span class="ck">foreach</span> (<span class="cv">$stmt</span> <span class="ck">as</span> <span class="cv">$ligne</span>) {
+    echo <span class="cv">$ligne</span>[<span class="cs">'nom'</span>] . <span class="cs">"&lt;br&gt;"</span>;
+}</code></pre>
+  <div class="alert a-tip">
+    <div class="aico">💡</div>
+    <div class="abody"><div class="atitle">L'hôte est "db", pas "localhost"</div><div class="atext">Dans Docker, les services communiquent via leur nom de service. La base de données s'appelle <code>db</code>.</div></div>
+  </div>
+</div>
+</div>
+
+<!-- ── CH.5 MAC : phpMyAdmin ── -->
+<div class="page page-break">
+<div class="page-content">
+  <div class="ch-header">
+    <div class="ch-num">5</div>
+    <div><div class="ch-label">Chapitre 5</div><div class="ch-title">Gérer la base de données</div><div class="ch-sub">Créer des tables et manipuler les données avec phpMyAdmin</div></div>
+  </div>
+
+  <h2>🔑 Se connecter à phpMyAdmin</h2>
+  <p>Allez sur <strong>http://localhost:8081</strong>. La connexion est pré-configurée, vous êtes connecté automatiquement en root.</p>
+  <div class="creds-box">
+    <table><tr><td>🌐 Adresse</td><td>http://localhost:8081</td></tr><tr><td>👤 Utilisateur</td><td>root</td></tr><tr><td>🔑 Mot de passe</td><td>root</td></tr><tr><td>🗃️ Base de données</td><td>app</td></tr></table>
+  </div>
+
+  <h2>🛠️ Créer une table</h2>
+  <ul class="steps">
+    <li class="step"><div class="snum">1</div><div><div class="stitle">Dans la colonne gauche, cliquez sur "app"</div><div class="sdesc">C'est votre base de données</div></div></li>
+    <li class="step"><div class="snum">2</div><div><div class="stitle">Onglet "Structure" → "Créer une table"</div><div class="sdesc">Donnez un nom (ex: <code>utilisateurs</code>) et choisissez le nombre de colonnes</div></div></li>
+    <li class="step"><div class="snum">3</div><div><div class="stitle">Définissez vos colonnes, puis "Sauvegarder"</div><div class="sdesc">Toujours ajouter une colonne <code>id</code> en INT AUTO_INCREMENT comme clé primaire</div></div></li>
+  </ul>
+
+  <h2>📊 Exemple de table "utilisateurs"</h2>
+  <table class="tbl">
+    <thead><tr><td>Colonne</td><td>Type</td><td>Longueur</td><td>Options</td></tr></thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>INT</td><td>11</td><td style="color:#059669;font-size:9pt">PRIMARY KEY, AUTO_INCREMENT</td></tr>
+      <tr><td><code>nom</code></td><td>VARCHAR</td><td>100</td><td style="color:#64748b">—</td></tr>
+      <tr><td><code>email</code></td><td>VARCHAR</td><td>150</td><td style="color:#64748b">—</td></tr>
+      <tr><td><code>date_creation</code></td><td>DATETIME</td><td>—</td><td style="color:#64748b">DEFAULT CURRENT_TIMESTAMP</td></tr>
+    </tbody>
+  </table>
+
+  <h2>🔍 Exécuter une requête SQL</h2>
+  <p>Onglet <strong>"SQL"</strong> dans phpMyAdmin :</p>
+  <pre><code><span class="cc">-- Insérer des données</span>
+<span class="ck">INSERT INTO</span> utilisateurs (nom, email)
+<span class="ck">VALUES</span> (<span class="cs">'Alice Martin'</span>, <span class="cs">'alice@exemple.fr'</span>);
+
+<span class="cc">-- Lire toutes les données</span>
+<span class="ck">SELECT</span> * <span class="ck">FROM</span> utilisateurs;</code></pre>
+</div>
+</div>
+
+<!-- ── CH.6 MAC : ARRÊTER / REDÉMARRER ── -->
+<div class="page page-break">
+<div class="page-content">
+  <div class="ch-header">
+    <div class="ch-num">6</div>
+    <div><div class="ch-label">Chapitre 6</div><div class="ch-title">Arrêter et redémarrer</div><div class="ch-sub">Gérer l'environnement sans ligne de commande</div></div>
+  </div>
+
+  <h2>⏹️ Arrêter l'environnement</h2>
+  <div class="g2">
+    <div class="card c-blue"><div class="ctitle">Option A — Le plus simple</div><p style="font-size:9.5pt;color:#475569"><strong>Double-cliquez</strong> sur <code>stop.command</code> dans le dossier du projet. Une fenêtre s'ouvre, tout s'arrête proprement.</p></div>
+    <div class="card c-cyan"><div class="ctitle">Option B — Via Portainer</div><ol style="font-size:9pt;color:#475569;line-height:1.9;padding-left:14px"><li>Ouvrez <code>localhost:9000</code></li><li>Onglet <strong>"Containers"</strong></li><li>Cochez tous les conteneurs</li><li>Cliquez <strong>"Stop"</strong></li></ol></div>
+  </div>
+  <div class="alert a-ok">
+    <div class="aico">💾</div>
+    <div class="abody"><div class="atitle">Vos données sont conservées !</div><div class="atext">Arrêter les services ne supprime pas vos fichiers PHP ni vos données de base de données. Tout est conservé pour le prochain démarrage.</div></div>
+  </div>
+
+  <h2>↺ Redémarrer un service spécifique</h2>
+  <ul class="steps">
+    <li class="step"><div class="snum">1</div><div><div class="stitle">Portainer → http://localhost:9000 → "Containers"</div></div></li>
+    <li class="step"><div class="snum">2</div><div><div class="stitle">Trouvez le conteneur à redémarrer</div><div class="sdesc"><code>cours_web</code> = Apache+PHP &nbsp;|&nbsp; <code>cours_db</code> = base de données &nbsp;|&nbsp; <code>cours_phpmyadmin</code></div></div></li>
+    <li class="step"><div class="snum">3</div><div><div class="stitle">Cliquez le bouton ↺ (Restart)</div><div class="sdesc">Le service redémarre en quelques secondes</div></div></li>
+  </ul>
+
+  <h2>📋 Consulter les logs</h2>
+  <p>Dans Portainer → Containers → cliquez sur le <strong>nom</strong> d'un conteneur → "Logs". Utile pour diagnostiquer les erreurs.</p>
+
+  <div class="alert a-tip">
+    <div class="aico">💡</div>
+    <div class="abody"><div class="atitle">Routine quotidienne</div><div class="atext"><strong>Matin</strong> : Ouvrir Docker Desktop → double-clic <code>start.command</code><br><strong>Soir</strong> : Double-clic <code>stop.command</code></div></div>
+  </div>
+</div>
+</div>
+
+<!-- ── CH.7 MAC : DÉPANNAGE ── -->
+<div class="page">
+<div class="page-content">
+  <div class="ch-header">
+    <div class="ch-num">7</div>
+    <div><div class="ch-label">Chapitre 7</div><div class="ch-title">Dépannage Mac</div><div class="ch-sub">Solutions aux problèmes les plus fréquents</div></div>
+  </div>
+
+  <h2>🔴 Problèmes fréquents</h2>
+
+  <div class="card c-red" style="margin-bottom:9px">
+    <div class="ctitle" style="color:#dc2626">❌ Portainer — page "timeout" (/timeout.html)</div>
+    <p style="font-size:9.5pt;color:#475569;margin:0 0 5px"><strong>Cause</strong> : compte admin non créé dans les 5 premières minutes.<br><strong>Solution :</strong> Redémarrez Portainer (conserve toutes les données) :</p>
+    <pre style="margin:4px 0"><code style="font-size:8.5pt">docker compose restart portainer</code></pre>
+    <p style="font-size:9pt;color:#475569;margin:4px 0 0">Puis allez <strong>immédiatement</strong> sur http://localhost:9000 pour créer votre compte.<br><strong>Réinitialisation complète</strong> : Docker Desktop → Volumes → supprimer <code>cours_portainer_data</code> → relancer Portainer.</p>
+  </div>
+
+  <div class="card c-red" style="margin-bottom:9px">
+    <div class="ctitle" style="color:#dc2626">❌ Docker Desktop n'est pas démarré</div>
+    <p style="font-size:9.5pt;color:#475569;margin:0">Ouvrez <strong>Docker Desktop</strong> depuis le Launchpad → attendez la baleine verte → relancez <code>start.command</code></p>
+  </div>
+
+  <div class="card c-red" style="margin-bottom:9px">
+    <div class="ctitle" style="color:#dc2626">❌ localhost:8080 ne s'affiche pas</div>
+    <p style="font-size:9.5pt;color:#475569;margin:0">Attendez 30 secondes (la BDD démarre en dernier) → <strong>Cmd+R</strong> pour actualiser.</p>
+  </div>
+
+  <div class="card c-red" style="margin-bottom:9px">
+    <div class="ctitle" style="color:#dc2626">❌ "Permission denied" sur start.command</div>
+    <p style="font-size:9pt;color:#475569;margin:4px 0">Ouvrez Terminal et tapez :</p>
+    <pre style="margin:4px 0"><code style="font-size:8.5pt">chmod +x ~/Desktop/BaseDedonnée/start.command stop.command</code></pre>
+  </div>
+
+  <div class="card c-red" style="margin-bottom:16px">
+    <div class="ctitle" style="color:#dc2626">❌ phpMyAdmin — erreur de connexion</div>
+    <p style="font-size:9.5pt;color:#475569;margin:0">La BDD met 10 à 20 secondes à démarrer → attendez et actualisez (<strong>Cmd+R</strong>).</p>
+  </div>
+
+  <div class="divider"></div>
+  <h2>🔑 Récapitulatif des identifiants</h2>
+  <div class="creds-box">
+    <table>
+      <tr><td>🌐 Site PHP</td><td>http://localhost:8080</td></tr>
+      <tr><td>🗄️ phpMyAdmin</td><td>http://localhost:8081</td></tr>
+      <tr><td>🐳 Portainer</td><td>http://localhost:9000</td></tr>
+      <tr><td>🏠 Tableau de bord</td><td>http://localhost:8082</td></tr>
+      <tr><td>📂 Hôte BDD (dans PHP)</td><td>db</td></tr>
+      <tr><td>🗃️ Base de données</td><td>app</td></tr>
+      <tr><td>👤 Utilisateur BDD</td><td>app</td></tr>
+      <tr><td>🔑 Mot de passe BDD</td><td>app</td></tr>
+      <tr><td>👑 Mot de passe root</td><td>root</td></tr>
+    </table>
+  </div>
+  <div style="text-align:center;padding:16px;background:var(--light);border-radius:10px;border:1px solid var(--border);margin-top:16px">
+    <p style="font-size:9.5pt;color:var(--muted);margin:0">Tutoriel Mac — Apache 2.4 + PHP 7.4 + MariaDB 10.6 + phpMyAdmin 5.2 + Portainer CE<br>Compatible Mac Intel &amp; Apple Silicon (M1/M2/M3/M4)</p>
+  </div>
+</div>
+</div>
+
+</div><!-- fin tuto-mac -->
+
+
+<!-- ████████████████████████████████████████
+     TUTORIEL WINDOWS
+████████████████████████████████████████ -->
+<div id="tuto-win" class="tuto hidden">
+
+<!-- Barre de navigation Windows -->
+<div class="nav-bar win">
+  <button class="nav-back" onclick="goBack()">← Choisir mon système</button>
+  <span class="nav-label">Tutoriel</span>
+  <span class="nav-badge win">🪟 Windows</span>
+  <button class="nav-print" onclick="window.print()">🖨️ Enregistrer en PDF</button>
+</div>
+
+<!-- ── COUVERTURE WINDOWS ── -->
+<div class="cover cover-win page-break">
+  <div class="cover-badge">Tutoriel Windows — Guide débutant</div>
+  <div class="cover-logo">🪟</div>
+  <h1>Environnement PHP<br><span>sur Windows</span></h1>
+  <p class="cover-subtitle">Guide d'installation WSL2 + Docker Desktop<br>et utilisation pas à pas — Windows 10 / 11</p>
+  <div class="cover-chips">
+    <span class="cover-chip">🌐 Apache 2.4</span>
+    <span class="cover-chip">⚙️ PHP 7.4</span>
+    <span class="cover-chip">🗃️ MariaDB 10.6</span>
+    <span class="cover-chip">🔧 phpMyAdmin</span>
+    <span class="cover-chip">🐳 Portainer</span>
+  </div>
+  <div class="cover-urls">
+    <table>
+      <tr><td>🌐 Site PHP</td><td>http://localhost:8080</td></tr>
+      <tr><td>🗄️ phpMyAdmin</td><td>http://localhost:8081</td></tr>
+      <tr><td>🐳 Portainer (GUI)</td><td>http://localhost:9000</td></tr>
+      <tr><td>🏠 Tableau de bord</td><td>http://localhost:8082</td></tr>
+    </table>
+  </div>
+  <div class="cover-footer">Tutoriel Windows — Environnement de cours PHP — Docker Desktop + WSL2</div>
+</div>
+
+<!-- ── SOMMAIRE WINDOWS ── -->
+<div class="page page-break">
+<div class="toc-page">
+  <div class="toc-title win">Sommaire — Windows</div>
+  <ul class="toc-list">
+    <li>
+      <div class="toc-row"><div class="toc-num win">1</div><div class="toc-text">Installer WSL2 et Docker Desktop</div><div class="toc-pg">p. 3</div></div>
+      <ul class="toc-sub">
+        <li><div class="toc-text">Activer WSL2 (Windows Subsystem for Linux)</div></li>
+        <li><div class="toc-text">Installer Docker Desktop pour Windows</div></li>
+        <li><div class="toc-text">Vérifier la configuration WSL2 + Docker</div></li>
+      </ul>
+    </li>
+    <li>
+      <div class="toc-row"><div class="toc-num win">2</div><div class="toc-text">Premier démarrage de l'environnement</div><div class="toc-pg">p. 4</div></div>
+      <ul class="toc-sub">
+        <li><div class="toc-text">Lancer avec start.bat (double-clic)</div></li>
+        <li><div class="toc-text">Configurer Portainer immédiatement</div></li>
+      </ul>
+    </li>
+    <li>
+      <div class="toc-row"><div class="toc-num win">3</div><div class="toc-text">Accéder aux interfaces web</div><div class="toc-pg">p. 5</div></div>
+      <ul class="toc-sub">
+        <li><div class="toc-text">Tableau de bord (8082), Site PHP (8080), phpMyAdmin (8081)</div></li>
+        <li><div class="toc-text">Portainer — créer son compte (important !)</div></li>
+      </ul>
+    </li>
+    <li>
+      <div class="toc-row"><div class="toc-num win">4</div><div class="toc-text">Travailler avec PHP</div><div class="toc-pg">p. 7</div></div>
+      <ul class="toc-sub">
+        <li><div class="toc-text">Le dossier htdocs dans l'Explorateur Windows</div></li>
+        <li><div class="toc-text">Créer et tester un fichier PHP</div></li>
+        <li><div class="toc-text">Se connecter à la base de données</div></li>
+      </ul>
+    </li>
+    <li>
+      <div class="toc-row"><div class="toc-num win">5</div><div class="toc-text">Gérer la base de données avec phpMyAdmin</div><div class="toc-pg">p. 8</div></div>
+    </li>
+    <li>
+      <div class="toc-row"><div class="toc-num win">6</div><div class="toc-text">Arrêter et redémarrer les services</div><div class="toc-pg">p. 9</div></div>
+    </li>
+    <li>
+      <div class="toc-row"><div class="toc-num win">7</div><div class="toc-text">Dépannage Windows</div><div class="toc-pg">p. 10</div></div>
+      <ul class="toc-sub">
+        <li><div class="toc-text">Portainer timeout — reset-portainer.bat</div></li>
+        <li><div class="toc-text">WSL2 non démarré, ports occupés, start.bat</div></li>
+        <li><div class="toc-text">Récapitulatif des identifiants</div></li>
+      </ul>
+    </li>
+  </ul>
+  <div class="alert a-info" style="margin-top:32px">
+    <div class="aico">ℹ️</div>
+    <div class="abody">
+      <div class="atitle">À propos de ce tutoriel</div>
+      <div class="atext">Ce guide est conçu pour Windows 10/11 avec Docker Desktop + WSL2. Toutes les opérations s'effectuent via des interfaces graphiques après la configuration initiale.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ── CH.1 WIN : INSTALLATION WSL2 + DOCKER DESKTOP ── -->
+<div class="page page-break">
+<div class="page-content">
+  <div class="ch-header win">
+    <div class="ch-num">1</div>
+    <div><div class="ch-label">Chapitre 1</div><div class="ch-title">Installer WSL2 et Docker Desktop</div><div class="ch-sub">Deux logiciels à installer une seule fois</div></div>
+  </div>
+
+  <h2>① Activer WSL2 (Windows Subsystem for Linux)</h2>
+  <p>WSL2 permet à Docker de fonctionner efficacement sur Windows. C'est gratuit et intégré à Windows 10/11.</p>
+  <ul class="steps">
+    <li class="step"><div class="snum">1</div><div><div class="stitle">Ouvrir PowerShell en administrateur</div><div class="sdesc">Menu <strong>Démarrer</strong> → cherchez "PowerShell" → <strong>clic droit → "Exécuter en tant qu'administrateur"</strong></div></div></li>
+    <li class="step"><div class="snum">2</div><div><div class="stitle">Taper la commande d'installation</div><div class="sdesc">Copiez-collez exactement :</div></div></li>
+  </ul>
+  <pre><code>wsl --install</code></pre>
+  <ul class="steps">
+    <li class="step"><div class="snum">3</div><div><div class="stitle">Redémarrez votre PC</div><div class="sdesc">Obligatoire après l'installation de WSL2</div></div></li>
+    <li class="step"><div class="snum">4</div><div><div class="stitle">Après redémarrage : Ubuntu s'installe automatiquement</div><div class="sdesc">Créez un nom d'utilisateur Linux et un mot de passe quand demandé (retenez-les !)</div></div></li>
+  </ul>
+  <div class="alert a-info">
+    <div class="aico">ℹ️</div>
+    <div class="abody"><div class="atitle">WSL2 déjà installé ?</div><div class="atext">Vérifiez la version : dans PowerShell tapez <code>wsl --list --verbose</code>. Si vous voyez "VERSION 2", c'est bon. Sinon : <code>wsl --set-default-version 2</code></div></div>
+  </div>
+
+  <h2>② Installer Docker Desktop pour Windows</h2>
+  <ul class="steps">
+    <li class="step"><div class="snum">1</div><div><div class="stitle">Allez sur docker.com → "Download for Windows"</div><div class="sdesc">Téléchargez le fichier <code>Docker Desktop Installer.exe</code></div></div></li>
+    <li class="step"><div class="snum">2</div><div><div class="stitle">Lancez l'installateur</div><div class="sdesc">Cochez <strong>"Use WSL 2 instead of Hyper-V"</strong> si proposé — puis installez</div></div></li>
+    <li class="step"><div class="snum">3</div><div><div class="stitle">Redémarrez si demandé</div></div></li>
+    <li class="step"><div class="snum">4</div><div><div class="stitle">Ouvrez Docker Desktop → Settings → Resources → WSL Integration</div><div class="sdesc">Activez l'intégration avec <strong>Ubuntu</strong> → cliquez "Apply &amp; Restart"</div></div></li>
+  </ul>
+
+  <h2>✅ Docker Desktop est prêt quand…</h2>
+  <div class="card c-green">
+    <div class="ctitle">L'icône baleine 🐳 apparaît dans la barre des tâches</div>
+    <p style="font-size:9.5pt;color:#475569;margin:0">Coin <strong>bas-droit</strong> de l'écran Windows (zone de notification). Elle doit être stable (non animée = prêt).</p>
+  </div>
+  <div class="alert a-warn">
+    <div class="aico">⚠️</div>
+    <div class="abody"><div class="atitle">Docker Desktop doit rester ouvert</div><div class="atext">Docker Desktop doit rester en cours d'exécution (même en arrière-plan) pendant toute votre session de travail.</div></div>
+  </div>
+</div>
+</div>
+
+<!-- ── CH.2 WIN : PREMIER DÉMARRAGE ── -->
+<div class="page page-break">
+<div class="page-content">
+  <div class="ch-header win">
+    <div class="ch-num">2</div>
+    <div><div class="ch-label">Chapitre 2</div><div class="ch-title">Premier démarrage</div><div class="ch-sub">Lancer l'environnement avec start.bat (double-clic)</div></div>
+  </div>
+
+  <h2>🚀 Lancer l'environnement</h2>
+  <ul class="steps">
+    <li class="step"><div class="snum">1</div><div><div class="stitle">Ouvrez Docker Desktop depuis le menu Démarrer</div><div class="sdesc">Attendez que l'icône baleine apparaisse dans la barre des tâches (coin bas-droit)</div></div></li>
+    <li class="step"><div class="snum">2</div><div><div class="stitle">Double-cliquez sur <code>start.bat</code></div><div class="sdesc">Ce fichier est dans le dossier du projet. Une fenêtre noire de commande s'ouvre.</div></div></li>
+    <li class="step"><div class="snum">3</div><div><div class="stitle">Attendez le message de confirmation</div><div class="sdesc"><code>[OK] Environnement demarre avec succes !</code></div></div></li>
+    <li class="step"><div class="snum">4</div><div><div class="stitle">Votre navigateur s'ouvre automatiquement sur le dashboard</div><div class="sdesc">http://localhost:8082 — tous vos services sont accessibles</div></div></li>
+    <li class="step"><div class="snum snum red">!</div><div><div class="stitle" style="color:#dc2626">Allez IMMÉDIATEMENT sur Portainer !</div><div class="sdesc">Ouvrez http://localhost:9000 dans les 5 premières minutes pour créer votre compte. Voir Ch.3 pour les détails.</div></div></li>
+  </ul>
+
+  <div class="alert a-warn">
+    <div class="aico">⏱️</div>
+    <div class="abody"><div class="atitle">Première fois : patientez 5 à 10 minutes</div><div class="atext">Docker télécharge toutes les images (PHP, MariaDB…). C'est long <strong>uniquement la première fois</strong>. Les démarrages suivants : moins de 10 secondes.</div></div>
+  </div>
+
+  <h2>⚠️ Si start.bat se ferme immédiatement</h2>
+  <div class="g2">
+    <div class="card c-orange">
+      <div class="ctitle">Solution A</div>
+      <p style="font-size:9.5pt;color:#475569;margin:0">Clic droit sur <code>start.bat</code><br>→ <strong>"Exécuter en tant qu'administrateur"</strong></p>
+    </div>
+    <div class="card c-orange">
+      <div class="ctitle">Solution B</div>
+      <p style="font-size:9.5pt;color:#475569;margin:0">Ouvrez <strong>CMD</strong> dans le dossier (Maj + clic droit) → tapez <code>start.bat</code> pour voir le message d'erreur</p>
+    </div>
+  </div>
+
+  <h2>📁 Où se trouve le dossier du projet ?</h2>
+  <div class="card c-green">
+    <div class="ctitle">Accès depuis l'Explorateur Windows</div>
+    <p style="font-size:9.5pt;color:#475569;margin:4px 0">Si le projet est sur votre Bureau :</p>
+    <pre style="margin:6px 0"><code style="font-size:8.5pt">C:\Users\VotreNom\Desktop\BaseDedonnée\</code></pre>
+    <p style="font-size:9pt;color:#64748b;margin:0">Vos fichiers PHP vont dans le sous-dossier <code>htdocs\</code></p>
+  </div>
+</div>
+</div>
+
+<!-- ── CH.3 WIN : INTERFACES WEB (1/2) ── -->
+<div class="page page-break">
+<div class="page-content">
+  <div class="ch-header win">
+    <div class="ch-num">3</div>
+    <div><div class="ch-label">Chapitre 3</div><div class="ch-title">Accéder aux interfaces web</div><div class="ch-sub">Tout se passe dans votre navigateur Windows</div></div>
+  </div>
+
+  <h2>🗺️ Vue d'ensemble</h2>
+  <table class="tbl">
+    <thead><tr><td>Service</td><td>Adresse</td><td>Description</td></tr></thead>
+    <tbody>
+      <tr><td class="svc">🏠 Tableau de bord</td><td class="url">localhost:8082</td><td class="desc">Page d'accueil avec tous les liens</td></tr>
+      <tr><td class="svc">🌐 Site PHP</td><td class="url">localhost:8080</td><td class="desc">Vos fichiers PHP (htdocs/)</td></tr>
+      <tr><td class="svc">🗄️ phpMyAdmin</td><td class="url">localhost:8081</td><td class="desc">Gestion visuelle de la BDD</td></tr>
+      <tr><td class="svc">🐳 Portainer</td><td class="url">localhost:9000</td><td class="desc">Gestion des conteneurs Docker</td></tr>
+    </tbody>
+  </table>
+
+  <h2>🏠 Tableau de bord — localhost:8082</h2>
+  <p>Votre <strong>point de départ</strong> quotidien. Il centralise tous les liens et vos identifiants.</p>
+  <div class="bbar"><div class="bdots"><div class="bd bd-r"></div><div class="bd bd-y"></div><div class="bd bd-g"></div></div><div class="burl">http://localhost:8082</div></div>
+  <div class="bcontent">
+    <p style="margin:0 0 8px;font-weight:700;color:#1e293b">Tableau de bord — Cours PHP Docker</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:8.5pt">
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:7px;border-left:3px solid #4f46e5">🌐 <strong>Site PHP</strong><br><span style="color:#64748b">localhost:8080 →</span></div>
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:7px;border-left:3px solid #d97706">🗄️ <strong>phpMyAdmin</strong><br><span style="color:#64748b">localhost:8081 →</span></div>
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:7px;border-left:3px solid #0891b2">🐳 <strong>Portainer</strong><br><span style="color:#64748b">localhost:9000 →</span></div>
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:7px;border-left:3px solid #ec4899">🏠 <strong>Dashboard</strong><br><span style="color:#64748b">localhost:8082 →</span></div>
+    </div>
+  </div>
+
+  <h2>🌐 Site PHP — localhost:8080</h2>
+  <p>Affiche le contenu de votre dossier <code>htdocs\</code>. La page de test confirme que PHP et la base de données fonctionnent.</p>
+  <div class="bbar"><div class="bdots"><div class="bd bd-r"></div><div class="bd bd-y"></div><div class="bd bd-g"></div></div><div class="burl">http://localhost:8080</div></div>
+  <div class="bcontent">
+    <p style="margin:0 0 5px;font-size:16pt;font-weight:800;color:#4f46e5">Hello PHP ! 👋</p>
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:6px 10px;font-size:9pt;color:#15803d;margin:7px 0">✅ Connexion à MySQL réussie ! (MariaDB 10.6.x)</div>
+    <div style="font-size:9pt;color:#334155"><strong>PHP 7.4.x</strong> — Linux 64 bits</div>
+  </div>
+</div>
+</div>
+
+<!-- ── CH.3 WIN : INTERFACES WEB (2/2) ── -->
+<div class="page page-break">
+<div class="page-content">
+
+  <h2>🗄️ phpMyAdmin — localhost:8081</h2>
+  <p>Interface graphique pour gérer votre base de données. Connexion pré-configurée (automatique).</p>
+  <div class="creds-box" style="margin-bottom:10px">
+    <table><tr><td>🌐 Adresse</td><td>http://localhost:8081</td></tr><tr><td>👤 Utilisateur</td><td>root</td></tr><tr><td>🔑 Mot de passe</td><td>root</td></tr><tr><td>🗃️ Base de données</td><td>app</td></tr></table>
+  </div>
+  <div class="alert a-warn">
+    <div class="aico">⏱️</div>
+    <div class="abody"><div class="atitle">phpMyAdmin ne répond pas ?</div><div class="atext">La BDD met 10 à 20 secondes à démarrer. Attendez et actualisez avec <strong>Ctrl+R</strong> ou <strong>F5</strong>.</div></div>
+  </div>
+
+  <h2>🐳 Portainer — localhost:9000</h2>
+  <p>Interface graphique pour gérer vos conteneurs Docker (démarrer, arrêter, redémarrer, voir les logs).</p>
+
+  <div class="alert a-red">
+    <div class="aico">⚠️</div>
+    <div class="abody">
+      <div class="atitle">Agissez dans les 5 premières minutes !</div>
+      <div class="atext">
+        Portainer expire son initialisation pour des raisons de sécurité.
+        Après le démarrage, allez <strong>immédiatement</strong> sur http://localhost:9000 et créez votre compte.
+        Si vous voyez la page <em>"timeout"</em> → voir le chapitre Dépannage (p. 10) ou double-cliquez sur <code>reset-portainer.bat</code>.
+      </div>
+    </div>
+  </div>
+
+  <h3 class="win">Créer son compte (premier accès)</h3>
+  <ul class="steps">
+    <li class="step"><div class="snum">1</div><div><div class="stitle">Ouvrez http://localhost:9000</div><div class="sdesc">Portainer vous demande de créer un compte administrateur</div></div></li>
+    <li class="step"><div class="snum">2</div><div><div class="stitle">Entrez un nom d'utilisateur et un mot de passe</div><div class="sdesc">Exemple : <code>admin</code> — Mot de passe : 12 caractères minimum</div></div></li>
+    <li class="step"><div class="snum">3</div><div><div class="stitle">Cliquez "Create user"</div><div class="sdesc">Puis choisissez <strong>"Get Started" → "local"</strong></div></div></li>
+  </ul>
+
+  <h3 class="win">Ce que vous pouvez faire dans Portainer</h3>
+  <div class="bbar"><div class="bdots"><div class="bd bd-r"></div><div class="bd bd-y"></div><div class="bd bd-g"></div></div><div class="burl">http://localhost:9000 → Containers</div></div>
+  <div class="bcontent">
+    <table style="width:100%;font-size:8.5pt;border-collapse:collapse">
+      <tr style="background:#f8fafc;border-bottom:1px solid #e2e8f0"><td style="padding:5px 8px;font-weight:700">Conteneur</td><td style="padding:5px 8px;font-weight:700">État</td><td style="padding:5px 8px;font-weight:700">Actions disponibles</td></tr>
+      <tr style="border-bottom:1px solid #f1f5f9"><td style="padding:5px 8px">cours_web</td><td style="padding:5px 8px"><span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:10px;font-size:8pt">running</span></td><td style="padding:5px 8px;color:#0891b2">▶ ■ ↺ 📋</td></tr>
+      <tr style="border-bottom:1px solid #f1f5f9"><td style="padding:5px 8px">cours_db</td><td style="padding:5px 8px"><span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:10px;font-size:8pt">running</span></td><td style="padding:5px 8px;color:#0891b2">▶ ■ ↺ 📋</td></tr>
+      <tr><td style="padding:5px 8px">cours_phpmyadmin</td><td style="padding:5px 8px"><span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:10px;font-size:8pt">running</span></td><td style="padding:5px 8px;color:#0891b2">▶ ■ ↺ 📋</td></tr>
+    </table>
+    <p style="font-size:8pt;color:#94a3b8;margin-top:6px">▶ Démarrer &nbsp; ■ Arrêter &nbsp; ↺ Redémarrer &nbsp; 📋 Voir les logs</p>
+  </div>
+</div>
+</div>
+
+<!-- ── CH.4 WIN : TRAVAILLER AVEC PHP ── -->
+<div class="page page-break">
+<div class="page-content">
+  <div class="ch-header win">
+    <div class="ch-num">4</div>
+    <div><div class="ch-label">Chapitre 4</div><div class="ch-title">Travailler avec PHP</div><div class="ch-sub">Créer, éditer et tester vos scripts PHP sur Windows</div></div>
+  </div>
+
+  <h2>📁 Le dossier htdocs — votre espace de travail</h2>
+  <p>Tous vos fichiers PHP doivent être dans le dossier <code>htdocs\</code> du projet. Il est accessible directement depuis l'<strong>Explorateur Windows</strong>.</p>
+  <div class="card c-blue">
+    <div class="ctitle">📂 Où se trouve htdocs ?</div>
+    <pre style="margin:4px 0"><code style="font-size:8.5pt;line-height:1.9">C:\Users\VotreNom\Desktop\BaseDedonnée\
+├── 📁 <span class="cv">htdocs\</span>          ← <span class="cs">VOS FICHIERS PHP ICI</span>
+│   ├── index.php       ← page de test (déjà créée)
+│   └── bonjour.php     ← votre prochain fichier
+└── docker-compose.yml  ← ne pas toucher</code></pre>
+  </div>
+
+  <h2>✍️ Créer votre premier fichier PHP</h2>
+  <ul class="steps">
+    <li class="step"><div class="snum">1</div><div><div class="stitle">Ouvrez le dossier <code>htdocs\</code> dans l'Explorateur Windows</div><div class="sdesc">Double-clic depuis votre Bureau → dossier <code>BaseDedonnée</code> → <code>htdocs</code></div></div></li>
+    <li class="step"><div class="snum">2</div><div><div class="stitle">Créez un nouveau fichier <code>bonjour.php</code></div><div class="sdesc">Dans VS Code, Notepad++, ou tout éditeur. L'extension <code>.php</code> est obligatoire.</div></div></li>
+    <li class="step"><div class="snum">3</div><div><div class="stitle">Écrivez votre code PHP et sauvegardez</div></div></li>
+    <li class="step"><div class="snum">4</div><div><div class="stitle">Ouvrez dans le navigateur</div><div class="sdesc"><code>http://localhost:8080/bonjour.php</code> — actualisez avec <strong>Ctrl+F5</strong></div></div></li>
+  </ul>
+  <pre><code><span class="ck">&lt;?php</span>
+echo <span class="cs">"Bonjour le monde !"</span>;
+<span class="ck">?&gt;</span></code></pre>
+  <div class="alert a-ok">
+    <div class="aico">🎉</div>
+    <div class="abody"><div class="atitle">Pas besoin de redémarrer !</div><div class="atext">Chaque modification de vos fichiers PHP est visible immédiatement après <strong>Ctrl+F5</strong> dans le navigateur.</div></div>
+  </div>
+
+  <h2>🔌 Connexion à la base de données (PDO)</h2>
+  <pre><code><span class="cc">// Connexion à la base de données</span>
+<span class="cv">$pdo</span> = new PDO(
+    <span class="cs">"mysql:host=db;dbname=app;charset=utf8mb4"</span>,
+    <span class="cs">"app"</span>,   <span class="cc">// utilisateur</span>
+    <span class="cs">"app"</span>    <span class="cc">// mot de passe</span>
+);
+
+<span class="cc">// Récupérer des données</span>
+<span class="cv">$stmt</span> = <span class="cv">$pdo</span>->query(<span class="cs">"SELECT * FROM ma_table"</span>);
+<span class="ck">foreach</span> (<span class="cv">$stmt</span> <span class="ck">as</span> <span class="cv">$ligne</span>) {
+    echo <span class="cv">$ligne</span>[<span class="cs">'nom'</span>] . <span class="cs">"&lt;br&gt;"</span>;
+}</code></pre>
+  <div class="alert a-tip">
+    <div class="aico">💡</div>
+    <div class="abody"><div class="atitle">L'hôte est "db", pas "localhost"</div><div class="atext">Dans Docker, les services communiquent via leur nom. La base de données s'appelle <code>db</code> — même sur Windows.</div></div>
+  </div>
+</div>
+</div>
+
+<!-- ── CH.5 WIN : phpMyAdmin ── -->
+<div class="page page-break">
+<div class="page-content">
+  <div class="ch-header win">
+    <div class="ch-num">5</div>
+    <div><div class="ch-label">Chapitre 5</div><div class="ch-title">Gérer la base de données</div><div class="ch-sub">Créer des tables et manipuler les données avec phpMyAdmin</div></div>
+  </div>
+
+  <h2>🔑 Se connecter à phpMyAdmin</h2>
+  <p>Allez sur <strong>http://localhost:8081</strong>. Connexion automatique (pré-configurée).</p>
+  <div class="creds-box">
+    <table><tr><td>🌐 Adresse</td><td>http://localhost:8081</td></tr><tr><td>👤 Utilisateur</td><td>root</td></tr><tr><td>🔑 Mot de passe</td><td>root</td></tr><tr><td>🗃️ Base de données</td><td>app</td></tr></table>
+  </div>
+
+  <h2>🛠️ Créer une table</h2>
+  <ul class="steps">
+    <li class="step"><div class="snum">1</div><div><div class="stitle">Dans la colonne gauche, cliquez sur "app"</div><div class="sdesc">C'est votre base de données</div></div></li>
+    <li class="step"><div class="snum">2</div><div><div class="stitle">Onglet "Structure" → "Créer une table"</div><div class="sdesc">Donnez un nom (ex: <code>utilisateurs</code>) et choisissez le nombre de colonnes</div></div></li>
+    <li class="step"><div class="snum">3</div><div><div class="stitle">Définissez vos colonnes, puis "Sauvegarder"</div><div class="sdesc">Toujours ajouter une colonne <code>id</code> INT AUTO_INCREMENT comme clé primaire</div></div></li>
+  </ul>
+
+  <h2>📊 Exemple de table "utilisateurs"</h2>
+  <table class="tbl">
+    <thead><tr><td>Colonne</td><td>Type</td><td>Longueur</td><td>Options</td></tr></thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>INT</td><td>11</td><td style="color:#059669;font-size:9pt">PRIMARY KEY, AUTO_INCREMENT</td></tr>
+      <tr><td><code>nom</code></td><td>VARCHAR</td><td>100</td><td style="color:#64748b">—</td></tr>
+      <tr><td><code>email</code></td><td>VARCHAR</td><td>150</td><td style="color:#64748b">—</td></tr>
+      <tr><td><code>date_creation</code></td><td>DATETIME</td><td>—</td><td style="color:#64748b">DEFAULT CURRENT_TIMESTAMP</td></tr>
+    </tbody>
+  </table>
+
+  <h2>🔍 Exécuter une requête SQL</h2>
+  <p>Onglet <strong>"SQL"</strong> dans phpMyAdmin :</p>
+  <pre><code><span class="cc">-- Insérer des données</span>
+<span class="ck">INSERT INTO</span> utilisateurs (nom, email)
+<span class="ck">VALUES</span> (<span class="cs">'Alice Martin'</span>, <span class="cs">'alice@exemple.fr'</span>);
+
+<span class="cc">-- Lire toutes les données</span>
+<span class="ck">SELECT</span> * <span class="ck">FROM</span> utilisateurs;</code></pre>
+</div>
+</div>
+
+<!-- ── CH.6 WIN : ARRÊTER / REDÉMARRER ── -->
+<div class="page page-break">
+<div class="page-content">
+  <div class="ch-header win">
+    <div class="ch-num">6</div>
+    <div><div class="ch-label">Chapitre 6</div><div class="ch-title">Arrêter et redémarrer</div><div class="ch-sub">Gérer l'environnement sans ligne de commande</div></div>
+  </div>
+
+  <h2>⏹️ Arrêter l'environnement</h2>
+  <div class="g2">
+    <div class="card c-blue"><div class="ctitle">Option A — Le plus simple</div><p style="font-size:9.5pt;color:#475569"><strong>Double-cliquez</strong> sur <code>stop.bat</code> dans le dossier du projet. Une fenêtre noire s'ouvre et tout s'arrête proprement.</p></div>
+    <div class="card c-cyan"><div class="ctitle">Option B — Via Portainer</div><ol style="font-size:9pt;color:#475569;line-height:1.9;padding-left:14px"><li>Ouvrez <code>localhost:9000</code></li><li>Onglet <strong>"Containers"</strong></li><li>Cochez tous les conteneurs</li><li>Cliquez <strong>"Stop"</strong></li></ol></div>
+  </div>
+  <div class="alert a-ok">
+    <div class="aico">💾</div>
+    <div class="abody"><div class="atitle">Vos données sont conservées !</div><div class="atext">Arrêter les services ne supprime pas vos fichiers PHP ni vos données de base de données. Tout est conservé pour le prochain démarrage.</div></div>
+  </div>
+
+  <h2>↺ Redémarrer un service spécifique</h2>
+  <ul class="steps">
+    <li class="step"><div class="snum">1</div><div><div class="stitle">Portainer → http://localhost:9000 → "Containers"</div></div></li>
+    <li class="step"><div class="snum">2</div><div><div class="stitle">Trouvez le conteneur à redémarrer</div><div class="sdesc"><code>cours_web</code> = Apache+PHP &nbsp;|&nbsp; <code>cours_db</code> = BDD &nbsp;|&nbsp; <code>cours_phpmyadmin</code></div></div></li>
+    <li class="step"><div class="snum">3</div><div><div class="stitle">Cliquez le bouton ↺ (Restart)</div><div class="sdesc">Le service redémarre en quelques secondes</div></div></li>
+  </ul>
+
+  <div class="alert a-tip">
+    <div class="aico">💡</div>
+    <div class="abody"><div class="atitle">Routine quotidienne Windows</div><div class="atext"><strong>Matin</strong> : Ouvrir Docker Desktop → attendre baleine → double-clic <code>start.bat</code><br><strong>Soir</strong> : Double-clic <code>stop.bat</code></div></div>
+  </div>
+</div>
+</div>
+
+<!-- ── CH.7 WIN : DÉPANNAGE ── -->
+<div class="page">
+<div class="page-content">
+  <div class="ch-header win">
+    <div class="ch-num">7</div>
+    <div><div class="ch-label">Chapitre 7</div><div class="ch-title">Dépannage Windows</div><div class="ch-sub">Solutions aux problèmes les plus fréquents</div></div>
+  </div>
+
+  <h2>🔴 Problèmes fréquents</h2>
+
+  <div class="card c-red" style="margin-bottom:9px">
+    <div class="ctitle" style="color:#dc2626">❌ Portainer — page "timeout" (/timeout.html)</div>
+    <p style="font-size:9.5pt;color:#475569;margin:0 0 5px"><strong>Solution A</strong> : Double-cliquez sur <code>reset-portainer.bat</code> dans le dossier du projet.<br><strong>Solution B</strong> : Dans CMD du dossier projet :</p>
+    <pre style="margin:4px 0"><code style="font-size:8.5pt">docker compose restart portainer</code></pre>
+    <p style="font-size:9pt;color:#475569;margin:4px 0 0">Puis allez <strong>immédiatement</strong> sur http://localhost:9000.<br><strong>Solution C — Réinitialisation complète</strong> : Docker Desktop → Volumes → supprimer <code>cours_portainer_data</code> → relancer Portainer.</p>
+  </div>
+
+  <div class="card c-red" style="margin-bottom:9px">
+    <div class="ctitle" style="color:#dc2626">❌ Docker Desktop non détecté / start.bat échoue</div>
+    <p style="font-size:9.5pt;color:#475569;margin:0">Ouvrez <strong>Docker Desktop</strong> depuis le menu Démarrer → attendez la baleine dans la barre des tâches → relancez <code>start.bat</code>.</p>
+  </div>
+
+  <div class="card c-red" style="margin-bottom:9px">
+    <div class="ctitle" style="color:#dc2626">❌ start.bat se ferme immédiatement</div>
+    <p style="font-size:9.5pt;color:#475569;margin:0">Clic droit → <strong>"Exécuter en tant qu'administrateur"</strong>. Ou ouvrez CMD dans le dossier et tapez <code>start.bat</code>.</p>
+  </div>
+
+  <div class="card c-red" style="margin-bottom:9px">
+    <div class="ctitle" style="color:#dc2626">❌ Erreur "port already in use" / "bind failed"</div>
+    <p style="font-size:9.5pt;color:#475569;margin:0">Un autre logiciel utilise le port 8080 ou 8081. Fermez Skype, IIS, WAMP, ou tout autre serveur. Redémarrez et relancez <code>start.bat</code>.</p>
+  </div>
+
+  <div class="card c-red" style="margin-bottom:9px">
+    <div class="ctitle" style="color:#dc2626">❌ Les fichiers PHP ne s'affichent pas / ne se mettent pas à jour</div>
+    <p style="font-size:9.5pt;color:#475569;margin:0">Vérifiez que vos fichiers sont dans <code>htdocs\</code> du projet. Actualisez avec <strong>Ctrl+F5</strong> (vide le cache).</p>
+  </div>
+
+  <div class="card c-red" style="margin-bottom:16px">
+    <div class="ctitle" style="color:#dc2626">❌ phpMyAdmin — erreur de connexion</div>
+    <p style="font-size:9.5pt;color:#475569;margin:0">La BDD met 10 à 20 secondes à démarrer → attendez et actualisez (F5 ou Ctrl+R).</p>
+  </div>
+
+  <div class="divider"></div>
+  <h2>🔑 Récapitulatif des identifiants</h2>
+  <div class="creds-box">
+    <table>
+      <tr><td>🌐 Site PHP</td><td>http://localhost:8080</td></tr>
+      <tr><td>🗄️ phpMyAdmin</td><td>http://localhost:8081</td></tr>
+      <tr><td>🐳 Portainer</td><td>http://localhost:9000</td></tr>
+      <tr><td>🏠 Tableau de bord</td><td>http://localhost:8082</td></tr>
+      <tr><td>📂 Hôte BDD (dans PHP)</td><td>db</td></tr>
+      <tr><td>🗃️ Base de données</td><td>app</td></tr>
+      <tr><td>👤 Utilisateur BDD</td><td>app</td></tr>
+      <tr><td>🔑 Mot de passe BDD</td><td>app</td></tr>
+      <tr><td>👑 Mot de passe root</td><td>root</td></tr>
+    </table>
+  </div>
+  <div style="text-align:center;padding:16px;background:var(--light);border-radius:10px;border:1px solid var(--border);margin-top:16px">
+    <p style="font-size:9.5pt;color:var(--muted);margin:0">Tutoriel Windows — Apache 2.4 + PHP 7.4 + MariaDB 10.6 + phpMyAdmin 5.2 + Portainer CE<br>Windows 10 / 11 — Docker Desktop + WSL2</p>
+  </div>
+</div>
+</div>
+
+</div><!-- fin tuto-win -->
+
+
+<!-- ════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+function selectOS(os) {
+  document.getElementById('page-selector').style.display = 'none';
+  document.getElementById('tuto-' + os).classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+function goBack() {
+  ['mac', 'win'].forEach(function(id) {
+    document.getElementById('tuto-' + id).classList.add('hidden');
+  });
+  document.getElementById('page-selector').style.display = 'flex';
+  window.scrollTo(0, 0);
+}
+</script>
+
+</body>
+</html>
