@@ -114,7 +114,11 @@ $pdo = new PDO(
 
 ## Tutoriel complet
 
-Ouvrez **`TUTORIEL-ETUDIANTS.html`** dans votre navigateur pour accéder au guide pas à pas illustré (Mac et Windows).
+Ouvrez le [**Tutoriel interactif (HTML)**](tutoriels/TUTORIEL-ETUDIANTS.html) dans votre navigateur pour accéder au guide pas à pas illustré (Mac et Windows).
+
+Les versions PDF sont également disponibles dans le dossier **`tutoriels/`** :
+- [Tutoriel Mac (PDF)](tutoriels/Tutoriel%20%E2%80%94%20Environnement%20PHP%20Docker%20-%20mac.pdf)
+- [Tutoriel Windows (PDF)](tutoriels/Tutoriel%20%E2%80%94%20Environnement%20PHP%20Docker%20-%20windows.pdf)
 
 ---
 
