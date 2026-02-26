@@ -29,13 +29,20 @@ Téléchargez et installez [Docker Desktop](https://www.docker.com/products/dock
 
 ### 2. Télécharger ce projet
 
+**Option A — Sans Git (débutants)**
+
 1. Sur cette page, cliquez sur le bouton vert **`<> Code`** (en haut à droite)
 2. Cliquez sur **`Download ZIP`**
 3. Ouvrez le fichier ZIP téléchargé
 4. **Extrayez** (décompressez) le dossier sur votre **Bureau**
-5. Renommez le dossier en **`BaseDedonnée`** (supprimez le `-main` à la fin)
+5. Nommez le dossier **`PHPenv`**
 
-> Le dossier final sur votre Bureau doit s'appeler `BaseDedonnée` et contenir directement les fichiers (`start.bat`, `docker-compose.yml`, etc.).
+**Option B — Avec Git**
+
+```bash
+cd ~/Desktop
+git clone https://github.com/selinachegg/php-docker-environment.git PHPenv
+```
 
 ### 3. Lancer
 
