@@ -29,7 +29,13 @@ Téléchargez et installez [Docker Desktop](https://www.docker.com/products/dock
 
 ### 2. Télécharger ce projet
 
-Cliquez sur le bouton vert **Code** → **Download ZIP**, puis extrayez le dossier sur votre **Bureau**.
+1. Sur cette page, cliquez sur le bouton vert **`<> Code`** (en haut à droite)
+2. Cliquez sur **`Download ZIP`**
+3. Ouvrez le fichier ZIP téléchargé
+4. **Extrayez** (décompressez) le dossier sur votre **Bureau**
+5. Renommez le dossier en **`BaseDedonnée`** (supprimez le `-main` à la fin)
+
+> Le dossier final sur votre Bureau doit s'appeler `BaseDedonnée` et contenir directement les fichiers (`start.bat`, `docker-compose.yml`, etc.).
 
 ### 3. Lancer
 
