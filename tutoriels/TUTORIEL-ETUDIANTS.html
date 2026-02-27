@@ -787,7 +787,7 @@ pre code {
       <div class="toc-row"><div class="toc-num">2</div><div class="toc-text">Premier démarrage de l'environnement</div><div class="toc-pg">p. 4</div></div>
       <ul class="toc-sub">
         <li><div class="toc-text">Préparer les scripts (une seule fois)</div></li>
-        <li><div class="toc-text">Lancer l'environnement avec start.command</div></li>
+        <li><div class="toc-text">Lancer l'environnement avec le launcher</div></li>
       </ul>
     </li>
     <li>
@@ -905,7 +905,7 @@ pre code {
   </div>
 
   <h2>🔑 Étape unique — Donner les permissions</h2>
-  <p>Les scripts <code>start.command</code> et <code>stop.command</code> ont besoin d'une permission d'exécution. <strong>Cette étape ne se fait qu'une seule fois.</strong></p>
+  <p>Les scripts <code>launcher.command</code>, <code>start.command</code> et <code>stop.command</code> ont besoin d'une permission d'exécution. <strong>Cette étape ne se fait qu'une seule fois.</strong></p>
   <ul class="steps">
     <li class="step">
       <div class="snum">1</div>
@@ -923,7 +923,7 @@ pre code {
       <div><div class="stitle">Donner les permissions</div><div class="sdesc">Tapez et appuyez sur <strong>Entrée</strong> :</div></div>
     </li>
   </ul>
-  <pre><code>chmod +x start.command stop.command</code></pre>
+  <pre><code>chmod +x launcher.command start.command stop.command</code></pre>
   <div class="alert a-ok">
     <div class="aico">✅</div>
     <div class="abody"><div class="atitle">Terminé !</div><div class="atext">Vous n'aurez plus jamais besoin du Terminal. À partir de maintenant, tout se fait en double-cliquant.</div></div>
@@ -932,14 +932,17 @@ pre code {
   <h2>🚀 Lancer l'environnement</h2>
   <ul class="steps">
     <li class="step"><div class="snum">1</div><div><div class="stitle">Vérifiez que Docker Desktop est ouvert et vert</div><div class="sdesc">Regardez l'icône baleine en haut à droite de l'écran</div></div></li>
-    <li class="step"><div class="snum">2</div><div><div class="stitle">Double-cliquez sur <code>start.command</code></div><div class="sdesc">Ce fichier est dans le dossier du projet (sur votre Bureau)</div></div></li>
-    <li class="step"><div class="snum">3</div><div><div class="stitle">Une fenêtre Terminal s'ouvre automatiquement</div><div class="sdesc">Ne la fermez pas ! Les services démarrent en arrière-plan</div></div></li>
-    <li class="step"><div class="snum">4</div><div><div class="stitle">Attendez le message vert de confirmation</div><div class="sdesc"><code>✅  Environnement démarré avec succès !</code></div></div></li>
+    <li class="step"><div class="snum">2</div><div><div class="stitle">Double-cliquez sur <code>launcher.command</code></div><div class="sdesc">Un menu apparaît avec toutes les actions : Démarrer, Arrêter, Redémarrer, Reset Portainer</div></div></li>
+    <li class="step"><div class="snum">3</div><div><div class="stitle">Sélectionnez "Démarrer" et cliquez OK</div><div class="sdesc">Attendez la confirmation — le dashboard s'ouvre automatiquement</div></div></li>
     <li class="step"><div class="snum snum red">!</div><div><div class="stitle" style="color:#dc2626">Allez immédiatement sur Portainer !</div><div class="sdesc">Ouvrez http://localhost:9000 dans les 5 premières minutes pour créer votre compte. Voir Ch.3 pour les détails.</div></div></li>
   </ul>
   <div class="alert a-warn">
     <div class="aico">⏱️</div>
     <div class="abody"><div class="atitle">Première fois : patientez 5 à 10 minutes</div><div class="atext">Docker télécharge les images (PHP, MariaDB…). C'est long <strong>uniquement la première fois</strong>. Les fois suivantes : moins de 10 secondes.</div></div>
+  </div>
+  <div class="alert a-tip">
+    <div class="aico">💡</div>
+    <div class="abody"><div class="atitle">Scripts manuels</div><div class="atext">Les scripts <code>start.command</code> et <code>stop.command</code> sont aussi disponibles si le launcher ne fonctionne pas.</div></div>
   </div>
 </div>
 </div>
@@ -1146,7 +1149,7 @@ echo <span class="cs">"Bonjour le monde !"</span>;
 
   <h2>⏹️ Arrêter l'environnement</h2>
   <div class="g2">
-    <div class="card c-blue"><div class="ctitle">Option A — Le plus simple</div><p style="font-size:9.5pt;color:#475569"><strong>Double-cliquez</strong> sur <code>stop.command</code> dans le dossier du projet. Une fenêtre s'ouvre, tout s'arrête proprement.</p></div>
+    <div class="card c-blue"><div class="ctitle">Option A — Launcher (recommandé)</div><p style="font-size:9.5pt;color:#475569"><strong>Double-cliquez</strong> sur <code>launcher.command</code> → sélectionnez <strong>"Arrêter"</strong>. Vous pouvez aussi Redémarrer ou Reset Portainer depuis ce menu.</p></div>
     <div class="card c-cyan"><div class="ctitle">Option B — Via Portainer</div><ol style="font-size:9pt;color:#475569;line-height:1.9;padding-left:14px"><li>Ouvrez <code>localhost:9000</code></li><li>Onglet <strong>"Containers"</strong></li><li>Cochez tous les conteneurs</li><li>Cliquez <strong>"Stop"</strong></li></ol></div>
   </div>
   <div class="alert a-ok">
@@ -1166,7 +1169,7 @@ echo <span class="cs">"Bonjour le monde !"</span>;
 
   <div class="alert a-tip">
     <div class="aico">💡</div>
-    <div class="abody"><div class="atitle">Routine quotidienne</div><div class="atext"><strong>Matin</strong> : Ouvrir Docker Desktop → double-clic <code>start.command</code><br><strong>Soir</strong> : Double-clic <code>stop.command</code></div></div>
+    <div class="abody"><div class="atitle">Routine quotidienne</div><div class="atext"><strong>Matin</strong> : Ouvrir Docker Desktop → double-clic <code>launcher.command</code> → Démarrer<br><strong>Soir</strong> : <code>launcher.command</code> → Arrêter</div></div>
   </div>
 </div>
 </div>
@@ -1183,14 +1186,14 @@ echo <span class="cs">"Bonjour le monde !"</span>;
 
   <div class="card c-red" style="margin-bottom:9px">
     <div class="ctitle" style="color:#dc2626">❌ Portainer — page "timeout" (/timeout.html)</div>
-    <p style="font-size:9.5pt;color:#475569;margin:0 0 5px"><strong>Cause</strong> : compte admin non créé dans les 5 premières minutes.<br><strong>Solution :</strong> Redémarrez Portainer (conserve toutes les données) :</p>
+    <p style="font-size:9.5pt;color:#475569;margin:0 0 5px"><strong>Cause</strong> : compte admin non créé dans les 5 premières minutes.<br><strong>Solution :</strong> Utilisez <strong>"Reset Portainer"</strong> dans le launcher, ou en Terminal :</p>
     <pre style="margin:4px 0"><code style="font-size:8.5pt">docker compose restart portainer</code></pre>
-    <p style="font-size:9pt;color:#475569;margin:4px 0 0">Puis allez <strong>immédiatement</strong> sur http://localhost:9000 pour créer votre compte.<br><strong>Réinitialisation complète</strong> : Docker Desktop → Volumes → supprimer <code>cours_portainer_data</code> → relancer Portainer.</p>
+    <p style="font-size:9pt;color:#475569;margin:4px 0 0">Puis allez <strong>immédiatement</strong> sur http://localhost:9000 pour créer votre compte.</p>
   </div>
 
   <div class="card c-red" style="margin-bottom:9px">
     <div class="ctitle" style="color:#dc2626">❌ Docker Desktop n'est pas démarré</div>
-    <p style="font-size:9.5pt;color:#475569;margin:0">Ouvrez <strong>Docker Desktop</strong> depuis le Launchpad → attendez la baleine verte → relancez <code>start.command</code></p>
+    <p style="font-size:9.5pt;color:#475569;margin:0">Ouvrez <strong>Docker Desktop</strong> depuis le Launchpad → attendez la baleine verte → relancez <code>launcher.command</code></p>
   </div>
 
   <div class="card c-red" style="margin-bottom:9px">
@@ -1199,9 +1202,9 @@ echo <span class="cs">"Bonjour le monde !"</span>;
   </div>
 
   <div class="card c-red" style="margin-bottom:9px">
-    <div class="ctitle" style="color:#dc2626">❌ "Permission denied" sur start.command</div>
+    <div class="ctitle" style="color:#dc2626">❌ "Permission denied" sur les fichiers .command</div>
     <p style="font-size:9pt;color:#475569;margin:4px 0">Ouvrez Terminal et tapez :</p>
-    <pre style="margin:4px 0"><code style="font-size:8.5pt">chmod +x ~/Desktop/BaseDedonnée/start.command stop.command</code></pre>
+    <pre style="margin:4px 0"><code style="font-size:8.5pt">chmod +x ~/Desktop/BaseDedonnée/launcher.command start.command stop.command</code></pre>
   </div>
 
   <div class="card c-red" style="margin-bottom:16px">
@@ -1285,7 +1288,7 @@ echo <span class="cs">"Bonjour le monde !"</span>;
     <li>
       <div class="toc-row"><div class="toc-num win">2</div><div class="toc-text">Premier démarrage de l'environnement</div><div class="toc-pg">p. 4</div></div>
       <ul class="toc-sub">
-        <li><div class="toc-text">Lancer avec start.bat (double-clic)</div></li>
+        <li><div class="toc-text">Lancer avec le launcher (double-clic)</div></li>
         <li><div class="toc-text">Configurer Portainer immédiatement</div></li>
       </ul>
     </li>
@@ -1314,7 +1317,7 @@ echo <span class="cs">"Bonjour le monde !"</span>;
       <div class="toc-row"><div class="toc-num win">7</div><div class="toc-text">Dépannage Windows</div><div class="toc-pg">p. 10</div></div>
       <ul class="toc-sub">
         <li><div class="toc-text">Portainer timeout — reset-portainer.bat</div></li>
-        <li><div class="toc-text">Ports occupés, start.bat ne fonctionne pas</div></li>
+        <li><div class="toc-text">Ports occupés, launcher ne fonctionne pas</div></li>
         <li><div class="toc-text">Récapitulatif des identifiants</div></li>
       </ul>
     </li>
@@ -1366,15 +1369,14 @@ echo <span class="cs">"Bonjour le monde !"</span>;
 <div class="page-content">
   <div class="ch-header win">
     <div class="ch-num">2</div>
-    <div><div class="ch-label">Chapitre 2</div><div class="ch-title">Premier démarrage</div><div class="ch-sub">Lancer l'environnement avec start.bat (double-clic)</div></div>
+    <div><div class="ch-label">Chapitre 2</div><div class="ch-title">Premier démarrage</div><div class="ch-sub">Lancer l'environnement avec le launcher (double-clic)</div></div>
   </div>
 
   <h2>🚀 Lancer l'environnement</h2>
   <ul class="steps">
     <li class="step"><div class="snum">1</div><div><div class="stitle">Ouvrez Docker Desktop depuis le menu Démarrer</div><div class="sdesc">Attendez que l'icône baleine apparaisse dans la barre des tâches (coin bas-droit)</div></div></li>
-    <li class="step"><div class="snum">2</div><div><div class="stitle">Double-cliquez sur <code>start.bat</code></div><div class="sdesc">Ce fichier est dans le dossier du projet. Une fenêtre noire de commande s'ouvre.</div></div></li>
-    <li class="step"><div class="snum">3</div><div><div class="stitle">Attendez le message de confirmation</div><div class="sdesc"><code>[OK] Environnement demarre avec succes !</code></div></div></li>
-    <li class="step"><div class="snum">4</div><div><div class="stitle">Votre navigateur s'ouvre automatiquement sur le dashboard</div><div class="sdesc">http://localhost:8082 — tous vos services sont accessibles</div></div></li>
+    <li class="step"><div class="snum">2</div><div><div class="stitle">Double-cliquez sur <code>launcher.bat</code></div><div class="sdesc">Une fenêtre graphique s'ouvre avec toutes les actions : Démarrer, Arrêter, Redémarrer, Reset Portainer</div></div></li>
+    <li class="step"><div class="snum">3</div><div><div class="stitle">Cliquez sur "Démarrer"</div><div class="sdesc">Attendez que le statut passe au vert — le dashboard s'ouvre automatiquement</div></div></li>
     <li class="step"><div class="snum snum red">!</div><div><div class="stitle" style="color:#dc2626">Allez IMMÉDIATEMENT sur Portainer !</div><div class="sdesc">Ouvrez http://localhost:9000 dans les 5 premières minutes pour créer votre compte. Voir Ch.3 pour les détails.</div></div></li>
   </ul>
 
@@ -1383,16 +1385,9 @@ echo <span class="cs">"Bonjour le monde !"</span>;
     <div class="abody"><div class="atitle">Première fois : patientez 5 à 10 minutes</div><div class="atext">Docker télécharge toutes les images (PHP, MariaDB…). C'est long <strong>uniquement la première fois</strong>. Les démarrages suivants : moins de 10 secondes.</div></div>
   </div>
 
-  <h2>⚠️ Si start.bat se ferme immédiatement</h2>
-  <div class="g2">
-    <div class="card c-orange">
-      <div class="ctitle">Solution A</div>
-      <p style="font-size:9.5pt;color:#475569;margin:0">Clic droit sur <code>start.bat</code><br>→ <strong>"Exécuter en tant qu'administrateur"</strong></p>
-    </div>
-    <div class="card c-orange">
-      <div class="ctitle">Solution B</div>
-      <p style="font-size:9.5pt;color:#475569;margin:0">Ouvrez <strong>CMD</strong> dans le dossier (Maj + clic droit) → tapez <code>start.bat</code> pour voir le message d'erreur</p>
-    </div>
+  <div class="alert a-tip">
+    <div class="aico">💡</div>
+    <div class="abody"><div class="atitle">Scripts manuels</div><div class="atext">Les scripts <code>start.bat</code> et <code>stop.bat</code> sont aussi disponibles si le launcher ne fonctionne pas.</div></div>
   </div>
 
   <h2>📁 Où se trouve le dossier du projet ?</h2>
@@ -1605,7 +1600,7 @@ echo <span class="cs">"Bonjour le monde !"</span>;
 
   <h2>⏹️ Arrêter l'environnement</h2>
   <div class="g2">
-    <div class="card c-blue"><div class="ctitle">Option A — Le plus simple</div><p style="font-size:9.5pt;color:#475569"><strong>Double-cliquez</strong> sur <code>stop.bat</code> dans le dossier du projet. Une fenêtre noire s'ouvre et tout s'arrête proprement.</p></div>
+    <div class="card c-blue"><div class="ctitle">Option A — Launcher (recommandé)</div><p style="font-size:9.5pt;color:#475569"><strong>Double-cliquez</strong> sur <code>launcher.bat</code> → cliquez <strong>"Arrêter"</strong>. Vous pouvez aussi Redémarrer ou Reset Portainer depuis cette fenêtre.</p></div>
     <div class="card c-cyan"><div class="ctitle">Option B — Via Portainer</div><ol style="font-size:9pt;color:#475569;line-height:1.9;padding-left:14px"><li>Ouvrez <code>localhost:9000</code></li><li>Onglet <strong>"Containers"</strong></li><li>Cochez tous les conteneurs</li><li>Cliquez <strong>"Stop"</strong></li></ol></div>
   </div>
   <div class="alert a-ok">
@@ -1622,7 +1617,7 @@ echo <span class="cs">"Bonjour le monde !"</span>;
 
   <div class="alert a-tip">
     <div class="aico">💡</div>
-    <div class="abody"><div class="atitle">Routine quotidienne Windows</div><div class="atext"><strong>Matin</strong> : Ouvrir Docker Desktop → attendre baleine → double-clic <code>start.bat</code><br><strong>Soir</strong> : Double-clic <code>stop.bat</code></div></div>
+    <div class="abody"><div class="atitle">Routine quotidienne Windows</div><div class="atext"><strong>Matin</strong> : Ouvrir Docker Desktop → double-clic <code>launcher.bat</code> → Démarrer<br><strong>Soir</strong> : <code>launcher.bat</code> → Arrêter</div></div>
   </div>
 </div>
 </div>
@@ -1639,14 +1634,13 @@ echo <span class="cs">"Bonjour le monde !"</span>;
 
   <div class="card c-red" style="margin-bottom:9px">
     <div class="ctitle" style="color:#dc2626">❌ Portainer — page "timeout" (/timeout.html)</div>
-    <p style="font-size:9.5pt;color:#475569;margin:0 0 5px"><strong>Solution A</strong> : Double-cliquez sur <code>reset-portainer.bat</code> dans le dossier du projet.<br><strong>Solution B</strong> : Dans CMD du dossier projet :</p>
-    <pre style="margin:4px 0"><code style="font-size:8.5pt">docker compose restart portainer</code></pre>
-    <p style="font-size:9pt;color:#475569;margin:4px 0 0">Puis allez <strong>immédiatement</strong> sur http://localhost:9000.<br><strong>Solution C — Réinitialisation complète</strong> : Docker Desktop → Volumes → supprimer <code>cours_portainer_data</code> → relancer Portainer.</p>
+    <p style="font-size:9.5pt;color:#475569;margin:0 0 5px"><strong>Solution A</strong> : Utilisez <strong>"Reset Portainer"</strong> dans le launcher.<br><strong>Solution B</strong> : Double-cliquez sur <code>reset-portainer.bat</code> dans le dossier du projet.</p>
+    <p style="font-size:9pt;color:#475569;margin:4px 0 0">Puis allez <strong>immédiatement</strong> sur http://localhost:9000 pour créer votre compte.</p>
   </div>
 
   <div class="card c-red" style="margin-bottom:9px">
-    <div class="ctitle" style="color:#dc2626">❌ Docker Desktop non détecté / start.bat échoue</div>
-    <p style="font-size:9.5pt;color:#475569;margin:0">Ouvrez <strong>Docker Desktop</strong> depuis le menu Démarrer → attendez la baleine dans la barre des tâches → relancez <code>start.bat</code>.</p>
+    <div class="ctitle" style="color:#dc2626">❌ Docker Desktop non détecté</div>
+    <p style="font-size:9.5pt;color:#475569;margin:0">Ouvrez <strong>Docker Desktop</strong> depuis le menu Démarrer → attendez la baleine dans la barre des tâches → relancez <code>launcher.bat</code>.</p>
   </div>
 
   <div class="card c-red" style="margin-bottom:9px">
