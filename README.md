@@ -53,8 +53,6 @@ git clone https://github.com/selinachegg/php-docker-environment.git PHPenv
 | **Windows** | Double-cliquez sur `launcher.bat` |
 | **macOS** | Double-cliquez sur `launcher.command` |
 
-> **macOS — première fois uniquement** : ouvrez Terminal et tapez `chmod +x launcher.command start.command stop.command`
-
 Le launcher vous permet de **démarrer**, **arrêter**, **redémarrer** l'environnement et **réinitialiser Portainer** depuis un seul menu.
 
 Les scripts individuels (`start.bat`, `stop.bat`, `start.command`, `stop.command`) restent disponibles pour un usage manuel.
