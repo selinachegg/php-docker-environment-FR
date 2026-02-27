@@ -714,14 +714,14 @@ pre code {
     <button class="os-btn mac-btn" onclick="selectOS('mac')">
       <div class="os-icon">🍎</div>
       <div class="os-name">MacBook</div>
-      <div class="os-desc">Mac Intel ou Apple Silicon<br>(M1 / M2 / M3 / M4)</div>
+      <div class="os-desc">macOS 14+ (Sonoma, Sequoia, Tahoe)<br>Mac Intel ou Apple Silicon (M1 / M2 / M3 / M4 / M5)</div>
       <div class="os-cta">Tutoriel Mac →</div>
     </button>
 
     <button class="os-btn win-btn" onclick="selectOS('win')">
       <div class="os-icon">🪟</div>
       <div class="os-name">Windows</div>
-      <div class="os-desc">Windows 10 ou Windows 11<br>avec WSL2 + Docker Desktop</div>
+      <div class="os-desc">Windows 10 ou 11<br>Intel/AMD (x64) ou Qualcomm (Arm64)</div>
       <div class="os-cta">Tutoriel Windows →</div>
     </button>
 
@@ -751,7 +751,7 @@ pre code {
   <div class="cover-badge">Tutoriel Mac — Guide débutant</div>
   <div class="cover-logo">🍎</div>
   <h1>Environnement PHP<br><span>sur MacBook</span></h1>
-  <p class="cover-subtitle">Guide d'installation et d'utilisation pas à pas<br>Compatible Mac Intel &amp; Apple Silicon (M1/M2/M3/M4)</p>
+  <p class="cover-subtitle">Guide d'installation et d'utilisation pas à pas<br>macOS 14+ — Mac Intel &amp; Apple Silicon (M1/M2/M3/M4/M5)</p>
   <div class="cover-chips">
     <span class="cover-chip">🌐 Apache 2.4</span>
     <span class="cover-chip">⚙️ PHP 7.4</span>
@@ -778,7 +778,7 @@ pre code {
     <li>
       <div class="toc-row"><div class="toc-num">1</div><div class="toc-text">Installer Docker Desktop sur Mac</div><div class="toc-pg">p. 3</div></div>
       <ul class="toc-sub">
-        <li><div class="toc-text">Mac Intel ou Apple Silicon — comment savoir</div></li>
+        <li><div class="toc-text">Mac Intel ou Apple Silicon — comment savoir ?</div></li>
         <li><div class="toc-text">Téléchargement et installation</div></li>
         <li><div class="toc-text">Vérifier que Docker est prêt</div></li>
       </ul>
@@ -846,7 +846,7 @@ pre code {
       <div class="atitle">Comment savoir ?</div>
       <div class="atext">Menu <strong>Pomme ()</strong> → <strong>"À propos de ce Mac"</strong><br>
       • Vous voyez <strong>"Processeur Intel"</strong> → Mac Intel<br>
-      • Vous voyez <strong>"Puce Apple M1/M2/M3/M4"</strong> → Mac Apple Silicon</div>
+      • Vous voyez <strong>"Puce Apple M1/M2/M3/M4/M5"</strong> → Mac Apple Silicon</div>
     </div>
   </div>
 
@@ -864,7 +864,7 @@ pre code {
       </ol>
     </div>
     <div class="card c-cyan">
-      <div class="ctitle">⚡ Mac Apple Silicon (M1/M2/M3/M4)</div>
+      <div class="ctitle">⚡ Mac Apple Silicon (M1/M2/M3/M4/M5)</div>
       <ol style="padding-left:16px;font-size:9.5pt;color:#475569;line-height:1.9">
         <li>Allez sur <strong>docker.com</strong></li>
         <li>Cliquez <strong>"Download for Mac"</strong></li>
@@ -1225,7 +1225,7 @@ echo <span class="cs">"Bonjour le monde !"</span>;
     </table>
   </div>
   <div style="text-align:center;padding:16px;background:var(--light);border-radius:10px;border:1px solid var(--border);margin-top:16px">
-    <p style="font-size:9.5pt;color:var(--muted);margin:0">Tutoriel Mac — Apache 2.4 + PHP 7.4 + MariaDB 10.6 + phpMyAdmin 5.2 + Portainer CE<br>Compatible Mac Intel &amp; Apple Silicon (M1/M2/M3/M4)</p>
+    <p style="font-size:9.5pt;color:var(--muted);margin:0">Tutoriel Mac — Apache 2.4 + PHP 7.4 + MariaDB 10.6 + phpMyAdmin 5.2 + Portainer CE<br>macOS 14+ — Mac Intel &amp; Apple Silicon (M1/M2/M3/M4/M5)</p>
   </div>
 </div>
 </div>
@@ -1251,7 +1251,7 @@ echo <span class="cs">"Bonjour le monde !"</span>;
   <div class="cover-badge">Tutoriel Windows — Guide débutant</div>
   <div class="cover-logo">🪟</div>
   <h1>Environnement PHP<br><span>sur Windows</span></h1>
-  <p class="cover-subtitle">Guide d'installation WSL2 + Docker Desktop<br>et utilisation pas à pas — Windows 10 / 11</p>
+  <p class="cover-subtitle">Guide d'installation WSL2 + Docker Desktop<br>et utilisation pas à pas — Windows 10 ou 11 — Intel/AMD (x64) ou Qualcomm (Arm64)</p>
   <div class="cover-chips">
     <span class="cover-chip">🌐 Apache 2.4</span>
     <span class="cover-chip">⚙️ PHP 7.4</span>
@@ -1324,7 +1324,7 @@ echo <span class="cs">"Bonjour le monde !"</span>;
     <div class="aico">ℹ️</div>
     <div class="abody">
       <div class="atitle">À propos de ce tutoriel</div>
-      <div class="atext">Ce guide est conçu pour Windows 10/11 avec Docker Desktop + WSL2. Toutes les opérations s'effectuent via des interfaces graphiques après la configuration initiale.</div>
+      <div class="atext">Ce guide est conçu pour Windows 10 ou 11 — Intel/AMD (x64) ou Qualcomm (Arm64) — avec Docker Desktop + WSL2. Toutes les opérations s'effectuent via des interfaces graphiques après la configuration initiale.</div>
     </div>
   </div>
 </div>
@@ -1339,7 +1339,7 @@ echo <span class="cs">"Bonjour le monde !"</span>;
   </div>
 
   <h2>① Activer WSL2 (Windows Subsystem for Linux)</h2>
-  <p>WSL2 permet à Docker de fonctionner efficacement sur Windows. C'est gratuit et intégré à Windows 10/11.</p>
+  <p>WSL2 permet à Docker de fonctionner efficacement sur Windows. C'est gratuit et intégré à Windows 10 et 11.</p>
   <ul class="steps">
     <li class="step"><div class="snum">1</div><div><div class="stitle">Ouvrir PowerShell en administrateur</div><div class="sdesc">Menu <strong>Démarrer</strong> → cherchez "PowerShell" → <strong>clic droit → "Exécuter en tant qu'administrateur"</strong></div></div></li>
     <li class="step"><div class="snum">2</div><div><div class="stitle">Taper la commande d'installation</div><div class="sdesc">Copiez-collez exactement :</div></div></li>
@@ -1698,7 +1698,7 @@ echo <span class="cs">"Bonjour le monde !"</span>;
     </table>
   </div>
   <div style="text-align:center;padding:16px;background:var(--light);border-radius:10px;border:1px solid var(--border);margin-top:16px">
-    <p style="font-size:9.5pt;color:var(--muted);margin:0">Tutoriel Windows — Apache 2.4 + PHP 7.4 + MariaDB 10.6 + phpMyAdmin 5.2 + Portainer CE<br>Windows 10 / 11 — Docker Desktop + WSL2</p>
+    <p style="font-size:9.5pt;color:var(--muted);margin:0">Tutoriel Windows — Apache 2.4 + PHP 7.4 + MariaDB 10.6 + phpMyAdmin 5.2 + Portainer CE<br>Windows 10 ou 11 — Intel/AMD (x64) ou Qualcomm (Arm64) — Docker Desktop + WSL2</p>
   </div>
 </div>
 </div>
