@@ -25,7 +25,7 @@
 
 Téléchargez et installez [Docker Desktop](https://www.docker.com/products/docker-desktop) pour votre système.
 
-> **Windows** : installez aussi WSL2 avant Docker. Dans PowerShell (admin) : `wsl --install` puis redémarrez.
+> **Windows** : Docker Desktop installe automatiquement tout ce dont il a besoin (y compris WSL2). Redémarrez si demandé.
 
 ### 2. Télécharger ce projet
 

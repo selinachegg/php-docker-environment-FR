@@ -1251,7 +1251,7 @@ echo <span class="cs">"Bonjour le monde !"</span>;
   <div class="cover-badge">Tutoriel Windows — Guide débutant</div>
   <div class="cover-logo">🪟</div>
   <h1>Environnement PHP<br><span>sur Windows</span></h1>
-  <p class="cover-subtitle">Guide d'installation WSL2 + Docker Desktop<br>et utilisation pas à pas — Windows 10 ou 11 — Intel/AMD (x64) ou Qualcomm (Arm64)</p>
+  <p class="cover-subtitle">Guide d'installation Docker Desktop<br>et utilisation pas à pas — Windows 10 ou 11 — Intel/AMD (x64) ou Qualcomm (Arm64)</p>
   <div class="cover-chips">
     <span class="cover-chip">🌐 Apache 2.4</span>
     <span class="cover-chip">⚙️ PHP 7.4</span>
@@ -1267,7 +1267,7 @@ echo <span class="cs">"Bonjour le monde !"</span>;
       <tr><td>🏠 Tableau de bord</td><td>http://localhost:8082</td></tr>
     </table>
   </div>
-  <div class="cover-footer">Tutoriel Windows — Environnement de cours PHP — Docker Desktop + WSL2</div>
+  <div class="cover-footer">Tutoriel Windows — Environnement de cours PHP — Docker Desktop</div>
 </div>
 
 <!-- ── SOMMAIRE WINDOWS ── -->
@@ -1276,11 +1276,10 @@ echo <span class="cs">"Bonjour le monde !"</span>;
   <div class="toc-title win">Sommaire — Windows</div>
   <ul class="toc-list">
     <li>
-      <div class="toc-row"><div class="toc-num win">1</div><div class="toc-text">Installer WSL2 et Docker Desktop</div><div class="toc-pg">p. 3</div></div>
+      <div class="toc-row"><div class="toc-num win">1</div><div class="toc-text">Installer Docker Desktop</div><div class="toc-pg">p. 3</div></div>
       <ul class="toc-sub">
-        <li><div class="toc-text">Activer WSL2 (Windows Subsystem for Linux)</div></li>
-        <li><div class="toc-text">Installer Docker Desktop pour Windows</div></li>
-        <li><div class="toc-text">Vérifier la configuration WSL2 + Docker</div></li>
+        <li><div class="toc-text">Téléchargement et installation</div></li>
+        <li><div class="toc-text">Vérifier que Docker est prêt</div></li>
       </ul>
     </li>
     <li>
@@ -1315,7 +1314,7 @@ echo <span class="cs">"Bonjour le monde !"</span>;
       <div class="toc-row"><div class="toc-num win">7</div><div class="toc-text">Dépannage Windows</div><div class="toc-pg">p. 10</div></div>
       <ul class="toc-sub">
         <li><div class="toc-text">Portainer timeout — reset-portainer.bat</div></li>
-        <li><div class="toc-text">WSL2 non démarré, ports occupés, start.bat</div></li>
+        <li><div class="toc-text">Ports occupés, start.bat ne fonctionne pas</div></li>
         <li><div class="toc-text">Récapitulatif des identifiants</div></li>
       </ul>
     </li>
@@ -1324,43 +1323,31 @@ echo <span class="cs">"Bonjour le monde !"</span>;
     <div class="aico">ℹ️</div>
     <div class="abody">
       <div class="atitle">À propos de ce tutoriel</div>
-      <div class="atext">Ce guide est conçu pour Windows 10 ou 11 — Intel/AMD (x64) ou Qualcomm (Arm64) — avec Docker Desktop + WSL2. Toutes les opérations s'effectuent via des interfaces graphiques après la configuration initiale.</div>
+      <div class="atext">Ce guide est conçu pour Windows 10 ou 11 — Intel/AMD (x64) ou Qualcomm (Arm64) — avec Docker Desktop. Toutes les opérations s'effectuent via des interfaces graphiques après la configuration initiale.</div>
     </div>
   </div>
 </div>
 </div>
 
-<!-- ── CH.1 WIN : INSTALLATION WSL2 + DOCKER DESKTOP ── -->
+<!-- ── CH.1 WIN : INSTALLATION DOCKER DESKTOP ── -->
 <div class="page page-break">
 <div class="page-content">
   <div class="ch-header win">
     <div class="ch-num">1</div>
-    <div><div class="ch-label">Chapitre 1</div><div class="ch-title">Installer WSL2 et Docker Desktop</div><div class="ch-sub">Deux logiciels à installer une seule fois</div></div>
+    <div><div class="ch-label">Chapitre 1</div><div class="ch-title">Installer Docker Desktop</div><div class="ch-sub">À faire une seule fois sur votre PC Windows</div></div>
   </div>
 
-  <h2>① Activer WSL2 (Windows Subsystem for Linux)</h2>
-  <p>WSL2 permet à Docker de fonctionner efficacement sur Windows. C'est gratuit et intégré à Windows 10 et 11.</p>
+  <h2>⬇️ Téléchargement et installation</h2>
   <ul class="steps">
-    <li class="step"><div class="snum">1</div><div><div class="stitle">Ouvrir PowerShell en administrateur</div><div class="sdesc">Menu <strong>Démarrer</strong> → cherchez "PowerShell" → <strong>clic droit → "Exécuter en tant qu'administrateur"</strong></div></div></li>
-    <li class="step"><div class="snum">2</div><div><div class="stitle">Taper la commande d'installation</div><div class="sdesc">Copiez-collez exactement :</div></div></li>
-  </ul>
-  <pre><code>wsl --install</code></pre>
-  <ul class="steps">
-    <li class="step"><div class="snum">3</div><div><div class="stitle">Redémarrez votre PC</div><div class="sdesc">Obligatoire après l'installation de WSL2</div></div></li>
-    <li class="step"><div class="snum">4</div><div><div class="stitle">Après redémarrage : Ubuntu s'installe automatiquement</div><div class="sdesc">Créez un nom d'utilisateur Linux et un mot de passe quand demandé (retenez-les !)</div></div></li>
+    <li class="step"><div class="snum">1</div><div><div class="stitle">Allez sur docker.com → "Download for Windows"</div><div class="sdesc">Téléchargez le fichier <code>Docker Desktop Installer.exe</code></div></div></li>
+    <li class="step"><div class="snum">2</div><div><div class="stitle">Lancez l'installateur</div><div class="sdesc">Suivez les instructions à l'écran — Docker installe automatiquement tout ce dont il a besoin (y compris WSL2)</div></div></li>
+    <li class="step"><div class="snum">3</div><div><div class="stitle">Redémarrez votre PC si demandé</div><div class="sdesc">Certains PC nécessitent un redémarrage pour finaliser l'installation</div></div></li>
+    <li class="step"><div class="snum">4</div><div><div class="stitle">Ouvrez Docker Desktop</div><div class="sdesc">Menu Démarrer → cherchez "Docker Desktop" → cliquez dessus</div></div></li>
   </ul>
   <div class="alert a-info">
     <div class="aico">ℹ️</div>
-    <div class="abody"><div class="atitle">WSL2 déjà installé ?</div><div class="atext">Vérifiez la version : dans PowerShell tapez <code>wsl --list --verbose</code>. Si vous voyez "VERSION 2", c'est bon. Sinon : <code>wsl --set-default-version 2</code></div></div>
+    <div class="abody"><div class="atitle">Installation automatique</div><div class="atext">Docker Desktop installe et configure automatiquement WSL2 (Windows Subsystem for Linux) si nécessaire. Aucune intervention manuelle n'est requise.</div></div>
   </div>
-
-  <h2>② Installer Docker Desktop pour Windows</h2>
-  <ul class="steps">
-    <li class="step"><div class="snum">1</div><div><div class="stitle">Allez sur docker.com → "Download for Windows"</div><div class="sdesc">Téléchargez le fichier <code>Docker Desktop Installer.exe</code></div></div></li>
-    <li class="step"><div class="snum">2</div><div><div class="stitle">Lancez l'installateur</div><div class="sdesc">Cochez <strong>"Use WSL 2 instead of Hyper-V"</strong> si proposé — puis installez</div></div></li>
-    <li class="step"><div class="snum">3</div><div><div class="stitle">Redémarrez si demandé</div></div></li>
-    <li class="step"><div class="snum">4</div><div><div class="stitle">Ouvrez Docker Desktop → Settings → Resources → WSL Integration</div><div class="sdesc">Activez l'intégration avec <strong>Ubuntu</strong> → cliquez "Apply &amp; Restart"</div></div></li>
-  </ul>
 
   <h2>✅ Docker Desktop est prêt quand…</h2>
   <div class="card c-green">
@@ -1698,7 +1685,7 @@ echo <span class="cs">"Bonjour le monde !"</span>;
     </table>
   </div>
   <div style="text-align:center;padding:16px;background:var(--light);border-radius:10px;border:1px solid var(--border);margin-top:16px">
-    <p style="font-size:9.5pt;color:var(--muted);margin:0">Tutoriel Windows — Apache 2.4 + PHP 7.4 + MariaDB 10.6 + phpMyAdmin 5.2 + Portainer CE<br>Windows 10 ou 11 — Intel/AMD (x64) ou Qualcomm (Arm64) — Docker Desktop + WSL2</p>
+    <p style="font-size:9.5pt;color:var(--muted);margin:0">Tutoriel Windows — Apache 2.4 + PHP 7.4 + MariaDB 10.6 + phpMyAdmin 5.2 + Portainer CE<br>Windows 10 ou 11 — Intel/AMD (x64) ou Qualcomm (Arm64) — Docker Desktop</p>
   </div>
 </div>
 </div>
