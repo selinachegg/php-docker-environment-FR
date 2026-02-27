@@ -46,12 +46,18 @@ git clone https://github.com/selinachegg/php-docker-environment.git PHPenv
 
 ### 3. Lancer
 
+**Launcher (recommandé)** — Un menu interactif pour tout gérer :
+
 | Système | Commande |
 |---------|----------|
-| **Windows** | Double-cliquez sur `start.bat` |
-| **Mac** | Double-cliquez sur `start.command` |
+| **Windows** | Double-cliquez sur `launcher.bat` |
+| **macOS** | Double-cliquez sur `launcher.command` |
 
-> **Mac — première fois uniquement** : ouvrez Terminal et tapez `chmod +x start.command stop.command`
+> **macOS — première fois uniquement** : ouvrez Terminal et tapez `chmod +x launcher.command start.command stop.command`
+
+Le launcher vous permet de **démarrer**, **arrêter**, **redémarrer** l'environnement et **réinitialiser Portainer** depuis un seul menu.
+
+Les scripts individuels (`start.bat`, `stop.bat`, `start.command`, `stop.command`) restent disponibles pour un usage manuel.
 
 Le premier lancement prend **5 à 10 minutes** (téléchargement des images). Les suivants : **~10 secondes**.
 
@@ -103,10 +109,12 @@ $pdo = new PDO(
 
 ## Arrêter l'environnement
 
+Utilisez le **launcher** ou les scripts individuels :
+
 | Système | Commande |
 |---------|----------|
 | **Windows** | Double-cliquez sur `stop.bat` |
-| **Mac** | Double-cliquez sur `stop.command` |
+| **macOS** | Double-cliquez sur `stop.command` |
 
 > Vos fichiers PHP et vos données de base de données sont conservés.
 
@@ -126,11 +134,11 @@ Les versions PDF sont également disponibles dans le dossier **`tutoriels/`** :
 
 | Problème | Solution |
 |----------|----------|
-| Portainer affiche "timeout" | **Windows** : double-cliquez `reset-portainer.bat`. **Mac** : `docker compose restart portainer`. Puis allez immédiatement sur localhost:9000. |
+| Portainer affiche "timeout" | Utilisez **Reset Portainer** dans le launcher, ou : **Windows** `reset-portainer.bat` / **macOS** `docker compose restart portainer`. Puis allez immédiatement sur localhost:9000. |
 | Docker n'est pas démarré | Ouvrez Docker Desktop, attendez l'icône baleine verte, puis relancez le script. |
 | localhost:8080 ne répond pas | Attendez 30 secondes (la BDD démarre en dernier) puis actualisez (F5). |
 | phpMyAdmin erreur de connexion | MariaDB met 10-20s à démarrer. Attendez et actualisez. |
-| [Mac] "Permission denied" | `chmod +x start.command stop.command` |
+| [macOS] "Permission denied" | `chmod +x launcher.command start.command stop.command` |
 | [Win] start.bat se ferme | Clic droit → "Exécuter en tant qu'administrateur" |
 | Réinitialisation complète | `docker compose down -v` puis relancez le script |
 
